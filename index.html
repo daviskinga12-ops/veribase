@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Veribase — Africa's Economy, Made Legible</title>
+<meta name="description" content="The trust and verification infrastructure for Kenya's real economy. Know who to trust before every deal."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0ABFA3;
+  --teal-dim:#087A69;
+  --teal-pale:rgba(10,191,163,0.08);
+  --teal-border:rgba(10,191,163,0.2);
+  --black:#0A0E14;
+  --slate:#111820;
+  --slate2:#1E2A38;
+  --muted:#5A7A8A;
+  --muted2:#3A5A6A;
+  --light:#8FAAB8;
+  --white:#F0F6F8;
+  --amber:#F5A623;
+  --purple:#8B7BF5;
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--black);
+  color:var(--white);
+  font-family:'DM Sans',sans-serif;
+  font-weight:300;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 48px;
+  background:rgba(10,14,20,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(10,191,163,0.08);
+}
+.nav-brand{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:20px;
+  color:var(--white);text-decoration:none;
+}
+.nav-brand span{color:var(--teal)}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{
+  font-size:14px;color:var(--muted);text-decoration:none;
+  transition:color 0.2s;letter-spacing:0.3px;
+}
+.nav-links a:hover{color:var(--white)}
+.nav-cta{
+  background:var(--teal);color:var(--black)!important;
+  padding:9px 20px;border-radius:6px;font-weight:500!important;
+  font-size:13px!important;transition:opacity 0.2s!important;
+}
+.nav-cta:hover{opacity:0.85}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:140px 48px 100px;
+  position:relative;overflow:hidden;
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(10,191,163,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(10,191,163,0.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 0%,transparent 100%);
+}
+.hero-glow{
+  position:absolute;top:-200px;right:-100px;
+  width:700px;height:700px;
+  background:radial-gradient(circle,rgba(10,191,163,0.06) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-glow2{
+  position:absolute;bottom:-200px;left:-150px;
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(139,123,245,0.05) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero-content{position:relative;max-width:760px;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--teal-pale);
+  border:1px solid var(--teal-border);
+  border-radius:100px;
+  padding:6px 16px;
+  margin-bottom:32px;
+}
+.hero-badge-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--teal);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.5;transform:scale(0.8)}
+}
+.hero-badge span{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;
+}
+h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(40px,6vw,72px);line-height:1.05;
+  color:var(--white);margin-bottom:24px;
+  letter-spacing:-1px;
+}
+h1 em{font-style:normal;color:var(--teal)}
+h1 .line2{
+  display:block;
+  background:linear-gradient(90deg,var(--white) 0%,var(--light) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-sub{
+  font-size:18px;color:var(--light);
+  max-width:520px;margin-bottom:48px;line-height:1.7;font-weight:300;
+}
+.hero-sub strong{color:var(--white);font-weight:500}
+
+/* WAITLIST FORM */
+.waitlist-form{
+  display:flex;gap:12px;max-width:480px;
+  margin-bottom:24px;
+}
+.waitlist-form input{
+  flex:1;
+  background:var(--slate2);
+  border:1px solid rgba(10,191,163,0.2);
+  border-radius:8px;
+  padding:14px 18px;
+  color:var(--white);
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;
+  outline:none;
+  transition:border-color 0.2s;
+}
+.waitlist-form input::placeholder{color:var(--muted)}
+.waitlist-form input:focus{border-color:var(--teal)}
+.waitlist-form button{
+  background:var(--teal);color:var(--black);
+  border:none;border-radius:8px;
+  padding:14px 24px;
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:500;
+  cursor:pointer;white-space:nowrap;
+  transition:opacity 0.2s,transform 0.1s;
+}
+.waitlist-form button:hover{opacity:0.88}
+.waitlist-form button:active{transform:scale(0.98)}
+.waitlist-meta{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--muted);letter-spacing:0.5px;
+}
+.waitlist-meta span{color:var(--teal)}
+.success-msg{
+  display:none;
+  align-items:center;gap:12px;
+  background:var(--teal-pale);
+  border:1px solid var(--teal-border);
+  border-radius:8px;padding:16px 20px;
+  max-width:480px;margin-bottom:24px;
+}
+.success-msg svg{flex-shrink:0}
+.success-msg p{font-size:14px;color:var(--teal)}
+
+/* STATS */
+.hero-stats{
+  display:flex;gap:48px;margin-top:64px;
+  padding-top:48px;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.stat-item{}
+.stat-num{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:32px;color:var(--white);
+}
+.stat-num span{color:var(--teal)}
+.stat-label{
+  font-size:13px;color:var(--muted);margin-top:4px;
+}
+
+/* PROBLEM SECTION */
+.section{padding:100px 48px}
+.section-tag{
+  font-family:'DM Mono',monospace;font-size:11px;
+  letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--teal-dim);margin-bottom:16px;
+}
+.section-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:clamp(28px,4vw,44px);line-height:1.1;
+  color:var(--white);margin-bottom:20px;letter-spacing:-0.5px;
+}
+.section-sub{
+  font-size:16px;color:var(--light);
+  max-width:520px;line-height:1.7;font-weight:300;
+}
+
+.problem-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:2px;margin-top:56px;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;overflow:hidden;
+}
+.problem-item{
+  padding:36px;background:var(--slate);
+  transition:background 0.2s;
+}
+.problem-item:hover{background:var(--slate2)}
+.problem-icon{
+  width:40px;height:40px;border-radius:8px;
+  background:rgba(245,166,35,0.1);
+  border:1px solid rgba(245,166,35,0.2);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;font-size:18px;
+}
+.problem-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:17px;color:var(--white);margin-bottom:10px;
+}
+.problem-desc{font-size:14px;color:var(--light);line-height:1.6;font-weight:300;}
+.problem-example{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--amber);margin-top:12px;letter-spacing:0.5px;
+}
+
+/* HOW IT WORKS */
+.how-section{
+  padding:100px 48px;
+  background:var(--slate);
+  border-top:1px solid rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.steps{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:0;margin-top:56px;position:relative;
+}
+.steps::before{
+  content:'';
+  position:absolute;top:28px;left:calc(16.66% + 20px);right:calc(16.66% + 20px);
+  height:1px;background:var(--teal-border);
+}
+.step{padding:0 32px;text-align:center}
+.step-num{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--teal-pale);
+  border:1px solid var(--teal-border);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;
+  font-family:'DM Mono',monospace;font-size:13px;
+  color:var(--teal);font-weight:500;
+  position:relative;z-index:1;
+}
+.step-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:17px;color:var(--white);margin-bottom:12px;
+}
+.step-desc{font-size:14px;color:var(--light);line-height:1.6;font-weight:300;}
+
+/* FEATURES */
+.features-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:16px;margin-top:56px;
+}
+.feature-card{
+  background:var(--slate);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:12px;padding:32px;
+  transition:border-color 0.2s,transform 0.2s;
+}
+.feature-card:hover{
+  border-color:var(--teal-border);
+  transform:translateY(-2px);
+}
+.feature-card:nth-child(1){border-top:2px solid var(--teal)}
+.feature-card:nth-child(2){border-top:2px solid var(--amber)}
+.feature-card:nth-child(3){border-top:2px solid var(--purple)}
+.feature-card:nth-child(4){border-top:2px solid var(--teal)}
+.feature-card:nth-child(5){border-top:2px solid var(--amber)}
+.feature-card:nth-child(6){border-top:2px solid var(--purple)}
+.feature-tag{
+  font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:16px;
+}
+.feature-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:16px;color:var(--white);margin-bottom:10px;
+}
+.feature-desc{font-size:14px;color:var(--light);line-height:1.6;font-weight:300;}
+
+/* LAYERS */
+.layers-section{padding:100px 48px}
+.layers-container{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:80px;align-items:center;margin-top:56px;
+}
+.layer-list{display:flex;flex-direction:column;gap:4px}
+.layer-item{
+  display:flex;align-items:flex-start;gap:16px;
+  padding:20px;border-radius:8px;
+  cursor:pointer;transition:background 0.2s;
+  border:1px solid transparent;
+}
+.layer-item:hover,.layer-item.active{
+  background:var(--slate2);
+  border-color:var(--teal-border);
+}
+.layer-num{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--teal);min-width:28px;padding-top:3px;
+}
+.layer-content{}
+.layer-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:15px;color:var(--white);margin-bottom:4px;
+}
+.layer-desc{font-size:13px;color:var(--light);line-height:1.5;font-weight:300;}
+.layer-visual{
+  background:var(--slate);
+  border:1px solid rgba(10,191,163,0.15);
+  border-radius:16px;padding:40px;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.layer-visual::before{
+  content:'';
+  position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(10,191,163,0.08) 0%,transparent 70%);
+}
+.layer-viz-title{
+  font-family:'DM Mono',monospace;font-size:11px;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--teal);margin-bottom:32px;
+}
+.economy-nodes{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:12px;margin-bottom:24px;
+}
+.econ-node{
+  background:var(--slate2);border-radius:8px;
+  padding:12px 8px;text-align:center;
+  border:1px solid rgba(255,255,255,0.06);
+  font-size:12px;color:var(--light);
+  transition:all 0.3s;
+}
+.econ-node.lit{
+  background:var(--teal-pale);
+  border-color:var(--teal-border);
+  color:var(--teal);
+}
+.econ-node-label{
+  font-family:'DM Mono',monospace;font-size:9px;
+  color:var(--muted);margin-top:4px;letter-spacing:0.5px;
+}
+.vb-layer-bar{
+  width:100%;height:3px;
+  background:linear-gradient(90deg,var(--teal),var(--purple));
+  border-radius:2px;margin:16px 0;
+}
+.layer-viz-caption{font-size:12px;color:var(--muted);font-style:italic;}
+
+/* WHO */
+.who-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:16px;margin-top:56px;
+}
+.who-card{
+  background:var(--slate);border-radius:12px;
+  padding:28px 24px;
+  border:1px solid rgba(255,255,255,0.05);
+  transition:border-color 0.2s;
+}
+.who-card:hover{border-color:var(--teal-border)}
+.who-icon{
+  font-size:28px;margin-bottom:16px;
+}
+.who-title{
+  font-family:'Syne',sans-serif;font-weight:700;
+  font-size:15px;color:var(--white);margin-bottom:8px;
+}
+.who-desc{font-size:13px;color:var(--light);line-height:1.6;font-weight:300;}
+
+/* CTA */
+.cta-section{
+  padding:120px 48px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.cta-section::before{
+  content:'';
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:800px;height:400px;
+  background:radial-gradient(ellipse,rgba(10,191,163,0.07) 0%,transparent 70%);
+  pointer-events:none;
+}
+.cta-section h2{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(32px,5vw,56px);line-height:1.1;
+  color:var(--white);margin-bottom:20px;letter-spacing:-0.5px;
+}
+.cta-section h2 em{font-style:normal;color:var(--teal)}
+.cta-sub{
+  font-size:17px;color:var(--light);
+  max-width:440px;margin:0 auto 48px;line-height:1.7;font-weight:300;
+}
+.cta-form{
+  display:flex;gap:12px;max-width:440px;margin:0 auto 20px;
+}
+.cta-form input{
+  flex:1;background:var(--slate2);
+  border:1px solid rgba(10,191,163,0.2);
+  border-radius:8px;padding:15px 18px;
+  color:var(--white);font-family:'DM Sans',sans-serif;
+  font-size:14px;outline:none;transition:border-color 0.2s;
+}
+.cta-form input::placeholder{color:var(--muted)}
+.cta-form input:focus{border-color:var(--teal)}
+.cta-form button{
+  background:var(--teal);color:var(--black);
+  border:none;border-radius:8px;
+  padding:15px 28px;font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:500;cursor:pointer;
+  transition:opacity 0.2s;white-space:nowrap;
+}
+.cta-form button:hover{opacity:0.88}
+.cta-note{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--muted);letter-spacing:0.5px;
+}
+
+/* FOOTER */
+footer{
+  padding:48px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.footer-brand{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:18px;color:var(--white);
+}
+.footer-brand span{color:var(--teal)}
+.footer-links{display:flex;gap:32px;}
+.footer-links a{
+  font-size:13px;color:var(--muted);text-decoration:none;
+  transition:color 0.2s;
+}
+.footer-links a:hover{color:var(--white)}
+.footer-copy{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--muted2);letter-spacing:0.5px;
+}
+
+/* DIVIDER */
+.divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(10,191,163,0.15),transparent);
+  margin:0 48px;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{padding:16px 24px}
+  .nav-links{display:none}
+  .hero{padding:120px 24px 80px}
+  .hero-stats{flex-wrap:wrap;gap:32px}
+  .section,.how-section,.layers-section{padding:80px 24px}
+  .problem-grid,.features-grid,.steps{grid-template-columns:1fr}
+  .steps::before{display:none}
+  .layers-container,.who-grid{grid-template-columns:1fr}
+  .who-grid{grid-template-columns:1fr 1fr}
+  footer{flex-direction:column;gap:24px;text-align:center;padding:40px 24px}
+  .footer-links{flex-wrap:wrap;justify-content:center}
+  .waitlist-form,.cta-form{flex-direction:column}
+  .waitlist-form button,.cta-form button{width:100%}
+}
+
+/* ANIMATIONS */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.hero-badge{animation:fadeUp 0.6s ease both}
+h1{animation:fadeUp 0.6s 0.1s ease both}
+.hero-sub{animation:fadeUp 0.6s 0.2s ease both}
+.waitlist-form{animation:fadeUp 0.6s 0.3s ease both}
+.waitlist-meta{animation:fadeUp 0.6s 0.4s ease both}
+.hero-stats{animation:fadeUp 0.6s 0.5s ease both}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-brand">Veri<span>base</span></a>
+  <div class="nav-links">
+    <a href="#problem">The Problem</a>
+    <a href="#how">How It Works</a>
+    <a href="#features">Features</a>
+    <a href="#who">Who It's For</a>
+    <a href="#waitlist" class="nav-cta">Join Waitlist</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      <span>Now building · Nairobi, Kenya</span>
+    </div>
+    <h1>Africa's economy,<em class="line2"> made legible.</em></h1>
+    <p class="hero-sub">
+      Every day, Kenyan businesses lose money trusting the wrong people.
+      <strong>Veribase is the verification and trust infrastructure</strong>
+      that finally makes the invisible economy visible.
+    </p>
+    <div class="waitlist-form">
+      <input type="email" id="hero-email" placeholder="your@email.com" autocomplete="email"/>
+      <button onclick="joinWaitlist('hero')">Join Waitlist</button>
+    </div>
+    <div class="success-msg" id="hero-success">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#0ABFA3" stroke-width="1.5"/><path d="M6 10L9 13L14 7" stroke="#0ABFA3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p>You're on the list. We'll be in touch from Nairobi.</p>
+    </div>
+    <p class="waitlist-meta">Free during beta &nbsp;·&nbsp; <span id="count">247</span> businesses already waiting</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num">80<span>%</span></div>
+        <div class="stat-label">of Kenya's economy is informal &amp; invisible</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">$10<span>T</span></div>
+        <div class="stat-label">in global informal economic value trapped</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">shared truth layers exist for African SMEs</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROBLEM -->
+<section class="section" id="problem">
+  <div class="section-tag">01 — The Problem</div>
+  <h2 class="section-title">Kenya's businesses run blind.</h2>
+  <p class="section-sub">Every business is an isolated cell. No shared memory. No shared truth. The same mistakes repeat every single day.</p>
+  <div class="problem-grid">
+    <div class="problem-item">
+      <div class="problem-icon">👤</div>
+      <div class="problem-title">Bad hires with no history</div>
+      <div class="problem-desc">You hire someone who stole at their last job. No way to know. No record exists anywhere.</div>
+      <div class="problem-example">→ Nakumatt lost millions to internal fraud</div>
+    </div>
+    <div class="problem-item">
+      <div class="problem-icon">📦</div>
+      <div class="problem-title">Suppliers who disappear</div>
+      <div class="problem-desc">You pay a supplier who delivers late, delivers badly, or simply vanishes with your money.</div>
+      <div class="problem-example">→ Delays at Mombasa port with no accountability</div>
+    </div>
+    <div class="problem-item">
+      <div class="problem-icon">💸</div>
+      <div class="problem-title">Credit with no consequence</div>
+      <div class="problem-desc">You extend credit to a business that has defaulted on five others. No warning system exists.</div>
+      <div class="problem-example">→ SME credit losses exceed KSh 2B annually</div>
+    </div>
+    <div class="problem-item">
+      <div class="problem-icon">🏦</div>
+      <div class="problem-title">Invisible to capital</div>
+      <div class="problem-desc">Your business does KSh 3M a month. To a bank, you don't exist. No verifiable track record.</div>
+      <div class="problem-example">→ 70% of Kenyan SMEs can't access formal credit</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div class="section-tag">02 — How It Works</div>
+  <h2 class="section-title">Three steps to verified truth.</h2>
+  <p class="section-sub">Veribase works quietly in the background, turning everyday business activity into structured, verifiable reality.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-title">Your business joins</div>
+      <div class="step-desc">Register your business. Verify your identity. Start logging real activity — hires, payments, suppliers, transactions.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-title">Truth accumulates</div>
+      <div class="step-desc">Every interaction builds a verifiable track record. Staff history. Supplier reliability. Payment behavior. All cryptographically signed.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-title">Everyone benefits</div>
+      <div class="step-desc">Search anyone before trusting them. Your own record attracts better partners, better staff, and eventually — capital.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-tag">03 — Features</div>
+  <h2 class="section-title">Every layer of trust, covered.</h2>
+  <p class="section-sub">Six core modules that together form a complete picture of economic reality for your business.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-tag">Staff Layer</div>
+      <div class="feature-title">Employee Reputation</div>
+      <div class="feature-desc">Verify any candidate's real work history. Exit reasons. Performance flags. No more blind hiring.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-tag">Supplier Layer</div>
+      <div class="feature-title">Supplier Track Record</div>
+      <div class="feature-desc">See every supplier's delivery history, quality ratings, and payment disputes before you commit.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-tag">Credit Layer</div>
+      <div class="feature-title">Business Credit Profile</div>
+      <div class="feature-desc">Know if a business has defaulted on others before you extend credit. Build your own clean record.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-tag">Identity Layer</div>
+      <div class="feature-title">Business Verification</div>
+      <div class="feature-desc">Verify any business is real, registered, and operating. Know who you're actually dealing with.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-tag">Signal Layer</div>
+      <div class="feature-title">Market Intelligence</div>
+      <div class="feature-desc">See pricing trends, demand signals, and supplier availability across your industry in real time.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-tag">Capital Layer</div>
+      <div class="feature-title">Lender Visibility</div>
+      <div class="feature-desc">Your Veribase record becomes your financial passport. Get seen by banks and investors who need to find you.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- LAYERS VISUAL -->
+<section class="layers-section">
+  <div class="layers-container">
+    <div>
+      <div class="section-tag">04 — The Vision</div>
+      <h2 class="section-title">The missing layer.</h2>
+      <p class="section-sub" style="margin-bottom:32px">Veribase sits beneath every business interaction — the invisible infrastructure that makes trust possible at scale.</p>
+      <div class="layer-list">
+        <div class="layer-item active">
+          <div class="layer-num">L1</div>
+          <div class="layer-content">
+            <div class="layer-title">Identity</div>
+            <div class="layer-desc">Who are you really? Verified, unforgeable business identity.</div>
+          </div>
+        </div>
+        <div class="layer-item">
+          <div class="layer-num">L2</div>
+          <div class="layer-content">
+            <div class="layer-title">Reputation</div>
+            <div class="layer-desc">What have you actually done? Track record that can't be faked.</div>
+          </div>
+        </div>
+        <div class="layer-item">
+          <div class="layer-num">L3</div>
+          <div class="layer-content">
+            <div class="layer-title">Coordination</div>
+            <div class="layer-desc">How do we work together? Verified agreements and shared context.</div>
+          </div>
+        </div>
+        <div class="layer-item">
+          <div class="layer-num">L4</div>
+          <div class="layer-content">
+            <div class="layer-title">Capital flow</div>
+            <div class="layer-desc">How does value find you? Your record as your financial passport.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="layer-visual">
+      <div class="layer-viz-title">Economy visibility</div>
+      <div class="economy-nodes">
+        <div class="econ-node lit">Retail<br><span class="econ-node-label">Verified ✓</span></div>
+        <div class="econ-node lit">Wholesale<br><span class="econ-node-label">Verified ✓</span></div>
+        <div class="econ-node">Logistics<br><span class="econ-node-label">Pending</span></div>
+        <div class="econ-node lit">SMEs<br><span class="econ-node-label">Verified ✓</span></div>
+        <div class="econ-node">Informal<br><span class="econ-node-label">Joining</span></div>
+        <div class="econ-node lit">Services<br><span class="econ-node-label">Verified ✓</span></div>
+        <div class="econ-node">Agri<br><span class="econ-node-label">Pending</span></div>
+        <div class="econ-node lit">Finance<br><span class="econ-node-label">Verified ✓</span></div>
+        <div class="econ-node">Health<br><span class="econ-node-label">Joining</span></div>
+      </div>
+      <div class="vb-layer-bar"></div>
+      <div style="font-family:'DM Mono',monospace;font-size:13px;color:#0ABFA3;margin-bottom:6px;letter-spacing:1px;">VERIBASE LAYER</div>
+      <div class="layer-viz-caption">The single source of truth beneath all sectors</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- WHO -->
+<section class="section" id="who">
+  <div class="section-tag">05 — Who It's For</div>
+  <h2 class="section-title">Built for every business in Kenya.</h2>
+  <p class="section-sub">From the duka owner in Kibera to the bank looking for credible borrowers.</p>
+  <div class="who-grid">
+    <div class="who-card">
+      <div class="who-icon">🏪</div>
+      <div class="who-title">Retail & Wholesale</div>
+      <div class="who-desc">Verify suppliers, screen staff, know your competitors' reality before it's yours.</div>
+    </div>
+    <div class="who-card">
+      <div class="who-icon">🏭</div>
+      <div class="who-title">Manufacturers & Distributors</div>
+      <div class="who-desc">Know who to extend credit to. Build a trade reputation that opens new doors.</div>
+    </div>
+    <div class="who-card">
+      <div class="who-icon">🏦</div>
+      <div class="who-title">Banks & Fintechs</div>
+      <div class="who-desc">Access verified SME data to underwrite loans you couldn't make before. Unlock a new market.</div>
+    </div>
+    <div class="who-card">
+      <div class="who-icon">🌍</div>
+      <div class="who-title">Investors & Corporates</div>
+      <div class="who-desc">See real economic activity in Kenya's informal sectors. Find opportunities invisible to others.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CTA -->
+<section class="cta-section" id="waitlist">
+  <h2>Be part of<br><em>the foundation.</em></h2>
+  <p class="cta-sub">The first 500 businesses on Veribase shape what this becomes. Join the waitlist. It's free during beta.</p>
+  <div class="cta-form">
+    <input type="email" id="cta-email" placeholder="your@business.com" autocomplete="email"/>
+    <button onclick="joinWaitlist('cta')">Get Early Access</button>
+  </div>
+  <div class="success-msg" id="cta-success" style="margin:0 auto 20px;">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#0ABFA3" stroke-width="1.5"/><path d="M6 10L9 13L14 7" stroke="#0ABFA3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <p>You're on the list. Welcome to the foundation.</p>
+  </div>
+  <p class="cta-note">No spam. No pressure. Just early access when we launch.</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Veri<span>base</span></div>
+  <div class="footer-links">
+    <a href="#problem">Problem</a>
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="mailto:hello@veribase.co">Contact</a>
+  </div>
+  <div class="footer-copy">© 2026 Veribase · Nairobi, Kenya</div>
+</footer>
+
+<script>
+let waitlistCount = 247;
+
+function joinWaitlist(source) {
+  const input = document.getElementById(source === 'hero' ? 'hero-email' : 'cta-email');
+  const successEl = document.getElementById(source === 'hero' ? 'hero-success' : 'cta-success');
+  const formEl = input.parentElement;
+  const email = input.value.trim();
+
+  if (!email || !email.includes('@')) {
+    input.style.borderColor = '#E24B4A';
+    input.focus();
+    setTimeout(() => { input.style.borderColor = 'rgba(10,191,163,0.2)'; }, 1500);
+    return;
+  }
+
+  formEl.style.display = 'none';
+  successEl.style.display = 'flex';
+  waitlistCount++;
+  const countEl = document.getElementById('count');
+  if (countEl) countEl.textContent = waitlistCount;
+}
+
+// Intersection observer for fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.problem-item,.feature-card,.who-card,.step').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(16px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
+
+// Layer interactivity
+document.querySelectorAll('.layer-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.layer-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

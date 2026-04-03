@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Financial Model — Veribase</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--teal:#0ABFA3;--black:#0A0E14;--slate:#111820;--slate2:#1E2A38;--muted:#5A7A8A;--light:#8FAAB8;--white:#F0F6F8;--amber:#F5A623;--purple:#8B7BF5;--red:#E24B4A;--green:#2DD4BF}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh}
+nav{display:flex;justify-content:space-between;align-items:center;padding:20px 48px;border-bottom:1px solid rgba(10,191,163,0.08)}
+.brand{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--white);text-decoration:none}
+.brand span{color:var(--teal)}
+.back{font-size:13px;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--white)}
+.wrap{max-width:1100px;margin:0 auto;padding:48px}
+.page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:36px;color:var(--white);margin-bottom:8px}
+.page-sub{font-size:15px;color:var(--muted);margin-bottom:40px}
+.layout{display:grid;grid-template-columns:320px 1fr;gap:32px;align-items:start}
+.panel{background:var(--slate);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:28px}
+.panel-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--white);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.control{margin-bottom:20px}
+.control-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.control-name{font-size:13px;color:var(--light)}
+.control-val{font-family:'DM Mono',monospace;font-size:13px;color:var(--teal);font-weight:500}
+input[type=range]{width:100%;accent-color:var(--teal);cursor:pointer}
+.section-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:20px 0 12px}
+.results-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.metric{background:var(--slate);border-radius:10px;padding:18px}
+.metric-label{font-size:11px;color:var(--muted);margin-bottom:8px;font-family:'DM Mono',monospace;letter-spacing:.5px}
+.metric-val{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:var(--white)}
+.metric-val.pos{color:var(--teal)}
+.metric-val.neg{color:var(--red)}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.table-wrap{background:var(--slate);border-radius:14px;padding:24px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:10px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.08)}
+th:first-child{text-align:left}
+td{padding:11px 12px;font-size:13px;color:var(--light);border-bottom:1px solid rgba(255,255,255,0.04);text-align:right;font-family:'DM Mono',monospace}
+td:first-child{text-align:left;color:var(--white);font-family:'DM Sans',sans-serif;font-weight:400}
+tr.section-row td{background:rgba(10,191,163,0.04);color:var(--teal);font-weight:500;font-family:'DM Sans',sans-serif}
+tr.total-row td{border-top:1px solid rgba(255,255,255,0.1);font-weight:500;color:var(--white)}
+tr.profit-pos td{color:var(--teal)}
+tr.profit-neg td{color:var(--red)}
+.bar-chart{margin-top:24px}
+.bar-row{display:grid;grid-template-columns:80px 1fr 100px;gap:12px;align-items:center;margin-bottom:10px}
+.bar-period{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.bar-track{height:10px;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;transition:width .6s ease}
+.bar-val{font-family:'DM Mono',monospace;font-size:12px;text-align:right}
+.note{font-size:12px;color:var(--muted);font-style:italic;margin-top:16px}
+.divider{height:1px;background:rgba(255,255,255,0.05);margin:24px 0}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.wrap{padding:24px}.results-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="brand">Veri<span>base</span></a>
+  <a href="/" class="back">← Back</a>
+</nav>
+<div class="wrap">
+  <div class="page-title">Financial Model</div>
+  <div class="page-sub">Adjust assumptions to model different scenarios. All figures in Kenyan Shillings (KSh).</div>
+
+  <div class="layout">
+
+    <!-- CONTROLS -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">Revenue assumptions</div>
+
+        <div class="section-tag">SME subscribers</div>
+        <div class="control">
+          <div class="control-label"><span class="control-name">Year 1 subscribers</span><span class="control-val" id="v-subs1">200</span></div>
+          <input type="range" min="50" max="1000" step="50" value="200" oninput="update('subs1',this.value)">
+        </div>
+        <div class="control">
+          <div class="control-label"><span class="control-name">Monthly growth rate</span><span class="control-val" id="v-growth">15%</span></div>
+          <input type="range" min="5" max="40" step="1" value="15" oninput="update('growth',this.value)">
+        </div>
+        <div class="control">
+          <div class="control-label"><span class="control-name">Avg monthly price (KSh)</span><span class="control-val" id="v-price">3,000</span></div>
+          <input type="range" min="1000" max="10000" step="500" value="3000" oninput="update('price',this.value)">
+        </div>
+        <div class="control">
+          <div class="control-label"><span class="control-name">Monthly churn rate</span><span class="control-val" id="v-churn">5%</span></div>
+          <input type="range" min="1" max="20" step="1" value="5" oninput="update('churn',this.value)">
+        </div>
+
+        <div class="divider"></div>
+        <div class="section-tag">Institutional licensing</div>
+        <div class="control">
+          <div class="control-label"><span class="control-name">Year 2 deals signed</span><span class="control-val" id="v-deals">2</span></div>
+          <input type="range" min="0" max="10" step="1" value="2" oninput="update('deals',this.value)">
+        </div>
+        <div class="control">
+          <div class="control-label"><span class="control-name">Avg deal size (KSh/yr)</span><span class="control-val" id="v-dealsize">1.5M</span></div>
+          <input type="range" min="500000" max="10000000" step="250000" value="1500000" oninput="update('dealsize',this.value)">
+        </div>
+
+        <div class="divider"></div>
+        <div class="section-tag">Cost structure</div>
+        <div class="control">
+          <div class="control-label"><span class="control-name">Monthly infra cost (KSh)</span><span class="control-val" id="v-infra">25,000</span></div>
+          <input type="range" min="5000" max="200000" step="5000" value="25000" oninput="update('infra',this.value)">
+        </div>
+        <div class="control">
+          <div class="control-label"><span class="control-name">Monthly staff cost (KSh)</span><span class="control-val" id="v-staff">150,000</span></div>
+          <input type="range" min="50000" max="1000000" step="25000" value="150000" oninput="update('staff',this.value)">
+        </div>
+        <div class="control">
+          <div class="control-label"><span class="control-name">Marketing (% of revenue)</span><span class="control-val" id="v-mkt">20%</span></div>
+          <input type="range" min="5" max="50" step="5" value="20" oninput="update('mkt',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div>
+      <div class="results-grid">
+        <div class="metric">
+          <div class="metric-label">Year 1 ARR</div>
+          <div class="metric-val pos" id="r-arr1">—</div>
+          <div class="metric-sub">annual recurring</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Year 3 ARR</div>
+          <div class="metric-val pos" id="r-arr3">—</div>
+          <div class="metric-sub">annual recurring</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Break-even</div>
+          <div class="metric-val" id="r-be">—</div>
+          <div class="metric-sub">month reached</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Year 3 margin</div>
+          <div class="metric-val" id="r-margin">—</div>
+          <div class="metric-sub">net profit margin</div>
+        </div>
+      </div>
+
+      <!-- BAR CHART -->
+      <div class="table-wrap" style="margin-bottom:24px">
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px">Annual revenue vs costs</div>
+        <div class="bar-chart" id="bars"></div>
+      </div>
+
+      <!-- DETAILED TABLE -->
+      <div class="table-wrap">
+        <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px">Monthly detail — Year 1 (KSh)</div>
+        <table id="detail-table">
+          <thead>
+            <tr>
+              <th style="text-align:left">Month</th>
+              <th>Subscribers</th>
+              <th>Revenue</th>
+              <th>Costs</th>
+              <th>Profit/Loss</th>
+            </tr>
+          </thead>
+          <tbody id="detail-body"></tbody>
+        </table>
+        <p class="note">* Institutional licensing revenue included from Month 13 (Year 2 onward)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const state={subs1:200,growth:15,price:3000,churn:5,deals:2,dealsize:1500000,infra:25000,staff:150000,mkt:20};
+
+const fmt=n=>n>=1000000?'KSh '+(n/1000000).toFixed(1)+'M':n>=1000?'KSh '+(n/1000).toFixed(0)+'K':'KSh '+Math.round(n).toLocaleString();
+const fmtShort=n=>n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(0)+'K':Math.round(n).toString();
+const pct=n=>Math.round(n)+'%';
+
+function update(key,val){
+  state[key]=parseFloat(val);
+  const labels={subs1:v=>Math.round(v).toLocaleString(),growth:v=>Math.round(v)+'%',price:v=>(+v).toLocaleString(),churn:v=>Math.round(v)+'%',deals:v=>Math.round(v),dealsize:v=>'KSh '+(v>=1000000?(v/1000000).toFixed(1)+'M':(v/1000).toFixed(0)+'K'),infra:v=>(+v).toLocaleString(),staff:v=>(+v).toLocaleString(),mkt:v=>Math.round(v)+'%'};
+  document.getElementById('v-'+key).textContent=labels[key](val);
+  recalc();
+}
+
+function recalc(){
+  const {subs1,growth,price,churn,deals,dealsize,infra,staff,mkt}=state;
+  const gr=growth/100,cr=churn/100;
+
+  // Monthly simulation — 36 months
+  let subs=subs1;
+  const months=[];
+  let be=-1;
+  for(let m=1;m<=36;m++){
+    if(m>1) subs=Math.max(0,subs*(1+gr)*(1-cr));
+    const smeRev=Math.round(subs)*price;
+    const instRev=m>12?deals*dealsize/12:0;
+    const rev=smeRev+instRev;
+    const costs=infra+staff+(rev*mkt/100)+(m<=6?50000:20000); // extra legal/setup costs early
+    const profit=rev-costs;
+    if(profit>=0&&be===-1)be=m;
+    months.push({m,subs:Math.round(subs),rev,costs,profit});
+  }
+
+  // Annual rollups
+  const y1=months.slice(0,12).reduce((a,x)=>({rev:a.rev+x.rev,costs:a.costs+x.costs,profit:a.profit+x.profit}),{rev:0,costs:0,profit:0});
+  const y2=months.slice(12,24).reduce((a,x)=>({rev:a.rev+x.rev,costs:a.costs+x.costs,profit:a.profit+x.profit}),{rev:0,costs:0,profit:0});
+  const y3=months.slice(24,36).reduce((a,x)=>({rev:a.rev+x.rev,costs:a.costs+x.costs,profit:a.profit+x.profit}),{rev:0,costs:0,profit:0});
+
+  const arr1=months[11].rev*12;
+  const arr3=months[35].rev*12;
+  const margin3=y3.rev>0?Math.round(y3.profit/y3.rev*100):0;
+
+  document.getElementById('r-arr1').textContent=fmt(arr1);
+  document.getElementById('r-arr3').textContent=fmt(arr3);
+  document.getElementById('r-be').textContent=be>0?'Month '+be:'36+';
+  document.getElementById('r-margin').textContent=pct(margin3);
+  document.getElementById('r-margin').className='metric-val '+(margin3>=0?'pos':'neg');
+  document.getElementById('r-be').className='metric-val '+(be>0&&be<=24?'pos':'');
+
+  // Bar chart
+  const maxVal=Math.max(y1.rev,y2.rev,y3.rev,y1.costs,y2.costs,y3.costs);
+  const bars=document.getElementById('bars');
+  bars.innerHTML=['Year 1','Year 2','Year 3'].map((yr,i)=>{
+    const d=[y1,y2,y3][i];
+    const rw=d.rev/maxVal*100,cw=d.costs/maxVal*100;
+    return `<div style="margin-bottom:16px">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:6px">${yr}</div>
+      <div class="bar-row" style="grid-template-columns:60px 1fr 90px;margin-bottom:4px">
+        <div style="font-size:11px;color:var(--teal);font-family:'DM Mono',monospace">Revenue</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${rw}%;background:var(--teal)"></div></div>
+        <div class="bar-val" style="color:var(--teal)">${fmtShort(d.rev)}</div>
+      </div>
+      <div class="bar-row" style="grid-template-columns:60px 1fr 90px">
+        <div style="font-size:11px;color:var(--red);font-family:'DM Mono',monospace">Costs</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${cw}%;background:var(--red)"></div></div>
+        <div class="bar-val" style="color:var(--red)">${fmtShort(d.costs)}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Detail table
+  const tbody=document.getElementById('detail-body');
+  tbody.innerHTML=months.slice(0,12).map(r=>{
+    const cls=r.profit>=0?'profit-pos':'profit-neg';
+    return `<tr class="${cls}">
+      <td>Month ${r.m}</td>
+      <td>${r.subs.toLocaleString()}</td>
+      <td>${fmtShort(r.rev)}</td>
+      <td>${fmtShort(r.costs)}</td>
+      <td>${r.profit>=0?'+':''}${fmtShort(r.profit)}</td>
+    </tr>`;
+  }).join('');
+}
+
+recalc();
+</script>
+</body>
+</html>

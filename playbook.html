@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Founder Playbook — Veribase</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--teal:#0ABFA3;--black:#0A0E14;--slate:#111820;--slate2:#1E2A38;--muted:#5A7A8A;--light:#8FAAB8;--white:#F0F6F8;--amber:#F5A623;--purple:#8B7BF5}
+body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.8}
+nav{display:flex;justify-content:space-between;align-items:center;padding:20px 48px;border-bottom:1px solid rgba(10,191,163,0.08);position:sticky;top:0;background:rgba(10,14,20,0.95);backdrop-filter:blur(8px);z-index:10}
+.brand{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--white);text-decoration:none}
+.brand span{color:var(--teal)}
+.back{font-size:13px;color:var(--muted);text-decoration:none}
+.back:hover{color:var(--white)}
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{padding:32px 24px;border-right:1px solid rgba(255,255,255,0.05);position:sticky;top:61px;height:calc(100vh - 61px);overflow-y:auto}
+.sidebar-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+.sidebar a{display:block;font-size:13px;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:6px;margin-bottom:2px;transition:all .15s;border-left:2px solid transparent}
+.sidebar a:hover{color:var(--white);background:var(--slate2)}
+.sidebar a.active{color:var(--teal);border-left-color:var(--teal);background:rgba(10,191,163,0.06)}
+.sidebar-section{margin-bottom:24px}
+.content{padding:48px 56px;max-width:800px}
+.section{margin-bottom:72px}
+.tag{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
+h2{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:var(--white);margin-bottom:16px;line-height:1.1}
+h3{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:var(--white);margin:32px 0 12px}
+h4{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--teal);margin:20px 0 8px}
+p{font-size:15px;color:var(--light);margin-bottom:14px;line-height:1.8}
+ul,ol{padding-left:24px;margin-bottom:16px}
+li{font-size:15px;color:var(--light);margin-bottom:8px;line-height:1.7}
+strong{color:var(--white);font-weight:500}
+.step-list{list-style:none;padding:0}
+.step-list li{display:grid;grid-template-columns:32px 1fr;gap:12px;margin-bottom:16px;align-items:start}
+.step-num{width:28px;height:28px;border-radius:50%;background:rgba(10,191,163,0.1);border:1px solid rgba(10,191,163,0.3);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);flex-shrink:0;margin-top:2px}
+.callout{border-radius:10px;padding:20px 24px;margin:20px 0}
+.callout-teal{background:rgba(10,191,163,0.08);border:1px solid rgba(10,191,163,0.2)}
+.callout-amber{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2)}
+.callout-purple{background:rgba(139,123,245,0.08);border:1px solid rgba(139,123,245,0.2)}
+.callout p{margin:0;font-size:14px}
+.callout-teal p{color:var(--teal)}
+.callout-amber p{color:var(--amber)}
+.callout-purple p{color:var(--purple)}
+code{font-family:'DM Mono',monospace;font-size:13px;background:var(--slate2);padding:2px 8px;border-radius:4px;color:var(--teal)}
+.table{width:100%;border-collapse:collapse;margin:16px 0}
+.table th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.08)}
+.table td{padding:12px 10px;font-size:14px;color:var(--light);border-bottom:1px solid rgba(255,255,255,0.04)}
+.table td:first-child{color:var(--white);font-weight:400}
+.arch-box{background:var(--slate2);border-radius:8px;padding:16px;margin:8px 0;border-left:3px solid var(--teal)}
+.arch-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--white);margin-bottom:6px}
+.arch-desc{font-size:13px;color:var(--light);font-weight:300}
+.arch-tech{font-family:'DM Mono',monospace;font-size:11px;color:var(--teal);margin-top:6px}
+a{color:var(--teal)}
+a:hover{text-decoration:underline}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}.content{padding:32px 24px}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="brand">Veri<span>base</span></a>
+  <a href="/" class="back">← Back to home</a>
+</nav>
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Legal setup</div>
+      <a href="#company" class="active">Company registration</a>
+      <a href="#odpc">ODPC registration</a>
+      <a href="#bank">Business bank account</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Strategy</div>
+      <a href="#coldstart">Cold start strategy</a>
+      <a href="#moat">Moat building</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Product</div>
+      <a href="#architecture">Technical architecture</a>
+      <a href="#mvp">MVP build plan</a>
+      <a href="#schema">Data schema</a>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- COMPANY REGISTRATION -->
+    <div class="section" id="company">
+      <div class="tag">Legal · Step 1</div>
+      <h2>Register Veribase Limited</h2>
+      <p>You must register before collecting any money or signing any contracts. This is the single most urgent action. It takes 3 working days and costs KSh 10,650.</p>
+
+      <div class="callout callout-amber">
+        <p>Do this before anything else. Without a registered company you are personally liable for everything Veribase does.</p>
+      </div>
+
+      <h3>Exact steps on eCitizen</h3>
+      <ol class="step-list">
+        <li><div class="step-num">1</div><div>Go to <a href="https://www.ecitizen.go.ke" target="_blank">ecitizen.go.ke</a> and create an account with your national ID and email.</div></li>
+        <li><div class="step-num">2</div><div>Navigate to <strong>Business Registration Service → Private Limited Company</strong>. Do not choose sole proprietorship — you need limited liability protection.</div></li>
+        <li><div class="step-num">3</div><div>Run a name search for <strong>"Veribase Limited"</strong>. Cost: KSh 150. If taken, alternatives: Veribase Technologies Limited, Veribase Africa Limited.</div></li>
+        <li><div class="step-num">4</div><div>Fill in the incorporation form. Registered office: use any physical Nairobi address you have access to.</div></li>
+        <li><div class="step-num">5</div><div>List yourself as sole director and shareholder initially. You can add investors as shareholders later.</div></li>
+        <li><div class="step-num">6</div><div>Pay KSh 10,500 registration fee via M-Pesa. You will receive a Certificate of Incorporation within 3 working days.</div></li>
+        <li><div class="step-num">7</div><div>Once incorporated, apply for a KRA PIN for the company at itax.kra.go.ke. This is free and required for all business transactions.</div></li>
+      </ol>
+
+      <h3>What you will receive</h3>
+      <ul>
+        <li>Certificate of Incorporation (your company legally exists)</li>
+        <li>Company Registration Number (CR Number)</li>
+        <li>Company KRA PIN</li>
+      </ul>
+      <p>Total cost: approximately KSh 10,650. Total time: 3–5 working days.</p>
+    </div>
+
+    <!-- ODPC REGISTRATION -->
+    <div class="section" id="odpc">
+      <div class="tag">Legal · Step 2</div>
+      <h2>Register with the ODPC</h2>
+      <p>Under the Kenya Data Protection Act, 2019, any person who processes personal data for a business purpose must register with the Office of the Data Protection Commissioner. This is mandatory. Penalties for non-compliance reach KSh 5 million.</p>
+
+      <div class="callout callout-amber">
+        <p>Do not collect a single email address until this is complete. Your waitlist already has signups — complete this immediately after company registration.</p>
+      </div>
+
+      <h3>Steps</h3>
+      <ol class="step-list">
+        <li><div class="step-num">1</div><div>Go to <a href="https://www.odpc.go.ke" target="_blank">odpc.go.ke</a> and create an account using your company details and CR Number.</div></li>
+        <li><div class="step-num">2</div><div>Select <strong>"Register as Data Controller/Processor"</strong>. Veribase is both — you control what data is collected and you process it.</div></li>
+        <li><div class="step-num">3</div><div>Complete the registration form. Describe your data processing activities accurately: "Collecting and processing business registration data, employment history, commercial transaction records, and contact information for purposes of business trust verification and economic intelligence."</div></li>
+        <li><div class="step-num">4</div><div>Pay the registration fee (currently KSh 5,000 for data processors).</div></li>
+        <li><div class="step-num">5</div><div>Receive your Data Controller/Processor registration certificate.</div></li>
+        <li><div class="step-num">6</div><div>Add your ODPC registration number to the Privacy Policy on your website.</div></li>
+      </ol>
+    </div>
+
+    <!-- BANK ACCOUNT -->
+    <div class="section" id="bank">
+      <div class="tag">Legal · Step 3</div>
+      <h2>Open a business bank account</h2>
+      <p>You need this to receive subscription payments, pay suppliers, and maintain separation between your personal and company finances.</p>
+
+      <h3>Recommended banks for startups in Kenya</h3>
+      <table class="table">
+        <thead><tr><th>Bank</th><th>Startup friendliness</th><th>Min. balance</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>NCBA Bank</td><td>High</td><td>KSh 0</td><td>Good M-Pesa integration, NCBA Loop account</td></tr>
+          <tr><td>KCB Bank</td><td>High</td><td>KSh 0</td><td>Widely accepted, good SME support</td></tr>
+          <tr><td>Equity Bank</td><td>High</td><td>KSh 0</td><td>Best for mobile-first businesses</td></tr>
+          <tr><td>Cooperative Bank</td><td>Medium</td><td>KSh 1,000</td><td>Good rates, slower service</td></tr>
+        </tbody>
+      </table>
+
+      <h3>What to bring</h3>
+      <ul>
+        <li>Certificate of Incorporation</li>
+        <li>Company KRA PIN certificate</li>
+        <li>Your national ID</li>
+        <li>Company CR12 form (list of directors, from eCitizen)</li>
+        <li>Company seal (optional but recommended, KSh 1,500 from any print shop)</li>
+      </ul>
+    </div>
+
+    <!-- COLD START -->
+    <div class="section" id="coldstart">
+      <div class="tag">Strategy · Step 4</div>
+      <h2>Cold start strategy</h2>
+      <p>Veribase is a network business. Its value grows with every member. But on day one you have zero members, zero data, and zero value to offer. This is the cold start problem — and it has killed more promising network businesses than any other challenge.</p>
+      <p>Here is the exact three-phase plan to solve it.</p>
+
+      <h3>Phase 1 — Seed the data (Month 1–2)</h3>
+      <p>Do not wait for businesses to join before there is value. Build value before the first signup.</p>
+      <ol class="step-list">
+        <li><div class="step-num">1</div><div>Research 500 Nairobi businesses using public records: BRS database, KRA PIN lookup, court records portal (judiciary.go.ke), business directory listings, Google Maps reviews.</div></li>
+        <li><div class="step-num">2</div><div>Build a basic profile for each: name, registration status, years in operation, address, industry, any public court cases or compliance issues.</div></li>
+        <li><div class="step-num">3</div><div>When a new business signs up, they immediately see value — they can look up any of these 500 businesses and get a real result, before contributing any data themselves.</div></li>
+      </ol>
+
+      <div class="callout callout-teal">
+        <p>The rule of cold start: the first user should get value even if they are the only user. Public data seeding is how you guarantee this.</p>
+      </div>
+
+      <h3>Phase 2 — Anchor tenant strategy (Month 2–4)</h3>
+      <p>Find one existing network and plug into it. Do not try to grow one business at a time.</p>
+
+      <h4>Target organisations (in priority order)</h4>
+      <ol>
+        <li><strong>Kenya National Chamber of Commerce and Industry (KNCCI)</strong> — nairobi@kenyachamber.or.ke — 5,000+ business members nationwide</li>
+        <li><strong>Kenya Association of Manufacturers (KAM)</strong> — 800+ manufacturing members</li>
+        <li><strong>Association of Microfinance Institutions (AMFI)</strong> — could make Veribase mandatory for loan applicants</li>
+        <li><strong>A large SACCO</strong> — Stima SACCO, Mwalimu National, Kenya Police SACCO — each has thousands of member businesses</li>
+        <li><strong>A wholesale distributor</strong> — e.g. Unilever Kenya supplier network — mandate Veribase for all supplier onboarding</li>
+      </ol>
+
+      <p>The pitch to an anchor tenant: <em>"Give your members a free premium Veribase account for 6 months. They can look up any supplier or candidate before trusting them. You look good, they get value, we get the network."</em></p>
+
+      <h3>Phase 3 — Network effects ignite (Month 4+)</h3>
+      <p>Once you have 300+ businesses, something shifts. Businesses start joining because other businesses they know are already on it. The marginal cost of each new member drops. Organic word-of-mouth begins. This is the moment you have been building toward.</p>
+      <p>Signal that you have reached ignition: weekly signups start growing without any marketing spend.</p>
+    </div>
+
+    <!-- MOAT -->
+    <div class="section" id="moat">
+      <div class="tag">Strategy · Step 5</div>
+      <h2>Year 1 moat-building plan</h2>
+      <p>Your moat does not exist until you build it deliberately. Here is exactly what to do in Year 1 to make Veribase permanently defensible.</p>
+
+      <h4>Data moat</h4>
+      <p>Every business interaction logged on Veribase makes the dataset more complete, more accurate, and harder to replicate. Your goal in Year 1 is to achieve a critical mass of data — 500+ businesses, 2,000+ staff records, 1,000+ supplier records — at which point the dataset becomes genuinely useful to institutions and genuinely difficult to match.</p>
+
+      <h4>Regulatory moat</h4>
+      <p>Register with the ODPC. Apply to become a recognised credit information provider under the Banking Act. Meet with the Central Bank of Kenya's financial inclusion team. Being known and trusted by regulators before competitors arrive is an enormous and durable advantage.</p>
+
+      <h4>Institutional relationship moat</h4>
+      <p>Close your first bank or fintech API deal before end of Year 1. Once a major financial institution integrates Veribase into their underwriting process, you become infrastructure they cannot easily remove. Each institutional deal makes every future deal easier.</p>
+
+      <h4>Trust moat</h4>
+      <p>Your brand reputation for accuracy and fairness is a moat. Build it by: having a clear dispute resolution process, being transparent about how data is used, and publicly correcting errors when found. A platform businesses trust is one they contribute to — and that contribution deepens the data moat.</p>
+    </div>
+
+    <!-- ARCHITECTURE -->
+    <div class="section" id="architecture">
+      <div class="tag">Product · Step 6</div>
+      <h2>Technical architecture</h2>
+      <p>What the full Veribase platform looks like under the hood. Build in this order — do not build everything at once.</p>
+
+      <h3>Stack (use what you already know)</h3>
+      <table class="table">
+        <thead><tr><th>Layer</th><th>Technology</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Frontend</td><td>React + Tailwind</td><td>You know this. Fast to build.</td></tr>
+          <tr><td>Backend/API</td><td>Node.js (Vercel Functions)</td><td>Serverless, already on Vercel</td></tr>
+          <tr><td>Database</td><td>Supabase (PostgreSQL)</td><td>Free tier, auth built in, row-level security</td></tr>
+          <tr><td>Auth</td><td>Supabase Auth</td><td>Email, magic link, MFA ready</td></tr>
+          <tr><td>File storage</td><td>Supabase Storage</td><td>For verification documents</td></tr>
+          <tr><td>Payments</td><td>M-Pesa Daraja (you built this)</td><td>Already integrated in PesaCheck</td></tr>
+          <tr><td>Email</td><td>Resend</td><td>Free tier, simple API, reliable</td></tr>
+          <tr><td>Hosting</td><td>Vercel</td><td>Already using, zero config</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Core modules (build in this exact order)</h3>
+
+      <div class="arch-box">
+        <div class="arch-title">Module 1 — Auth + Business Identity</div>
+        <div class="arch-desc">Registration, email verification, business profile creation, KRA PIN validation. This is the foundation. Nothing else works without it.</div>
+        <div class="arch-tech">Supabase Auth · Supabase DB · Vercel Functions · BRS API lookup</div>
+      </div>
+
+      <div class="arch-box">
+        <div class="arch-title">Module 2 — Staff Reputation</div>
+        <div class="arch-desc">Businesses log staff hires and exits with ratings and notes. Search any person by ID number or name. This is the highest daily-use feature.</div>
+        <div class="arch-tech">Supabase DB · Row-level security · Full-text search</div>
+      </div>
+
+      <div class="arch-box">
+        <div class="arch-title">Module 3 — Supplier Track Record</div>
+        <div class="arch-desc">Log supplier transactions, delivery ratings, payment disputes. Search any supplier before engaging. Second highest daily-use feature.</div>
+        <div class="arch-tech">Supabase DB · Aggregation queries</div>
+      </div>
+
+      <div class="arch-box" style="border-left-color:var(--amber)">
+        <div class="arch-title">Module 4 — Dispute Resolution (Month 4+)</div>
+        <div class="arch-desc">Any business can flag an incorrect record about them. Structured dispute process with evidence submission. Critical for trust and legal compliance.</div>
+        <div class="arch-tech">Supabase DB · Email notifications via Resend</div>
+      </div>
+
+      <div class="arch-box" style="border-left-color:var(--amber)">
+        <div class="arch-title">Module 5 — Payments + Subscriptions (Month 4+)</div>
+        <div class="arch-desc">Monthly subscription billing via M-Pesa STK push. Subscription status gates feature access. You already built M-Pesa integration.</div>
+        <div class="arch-tech">M-Pesa Daraja API · Supabase subscriptions table</div>
+      </div>
+
+      <div class="arch-box" style="border-left-color:var(--purple)">
+        <div class="arch-title">Module 6 — Institutional API (Year 2)</div>
+        <div class="arch-desc">REST API for banks and fintechs to query business scores, credit risk signals, and verification status. Rate-limited, API key authenticated.</div>
+        <div class="arch-tech">Vercel Edge Functions · API key auth · Rate limiting · Webhooks</div>
+      </div>
+    </div>
+
+    <!-- MVP PLAN -->
+    <div class="section" id="mvp">
+      <div class="tag">Product · Step 7</div>
+      <h2>MVP build plan</h2>
+      <p>8 weeks. Two modules. Real value on day one. Do not build more than this before your first paying customer.</p>
+
+      <table class="table">
+        <thead><tr><th>Week</th><th>What to build</th><th>Done when</th></tr></thead>
+        <tbody>
+          <tr><td>Week 1</td><td>Supabase project setup, auth, business registration form</td><td>Business can create verified account</td></tr>
+          <tr><td>Week 2</td><td>Business profile page, KRA PIN validation, basic dashboard</td><td>Profile visible to other businesses</td></tr>
+          <tr><td>Week 3</td><td>Staff logging — add hire, add exit, attach rating</td><td>Business can log staff records</td></tr>
+          <tr><td>Week 4</td><td>Staff search — search by name or ID number</td><td>Business can look up anyone</td></tr>
+          <tr><td>Week 5</td><td>Supplier logging and search (same pattern as staff)</td><td>Business can log and search suppliers</td></tr>
+          <tr><td>Week 6</td><td>M-Pesa subscription payment, subscription gating</td><td>First KSh comes in</td></tr>
+          <tr><td>Week 7</td><td>Dispute flag system, email notifications</td><td>Users can flag incorrect data</td></tr>
+          <tr><td>Week 8</td><td>Mobile responsive polish, onboarding flow, launch</td><td>Ready for first 50 real users</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-teal">
+        <p>The rule: do not add any feature that is not in this plan until you have 50 paying customers. Premature features are how MVPs die.</p>
+      </div>
+    </div>
+
+    <!-- DATA SCHEMA -->
+    <div class="section" id="schema">
+      <div class="tag">Product · Step 8</div>
+      <h2>Core data schema</h2>
+      <p>The five tables that power the MVP. Start with these in Supabase.</p>
+
+      <h4>businesses</h4>
+      <p><code>id · name · kra_pin · brs_number · industry · location · verified_at · subscription_status · created_at</code></p>
+
+      <h4>staff_records</h4>
+      <p><code>id · subject_name · subject_id_number · logged_by_business_id · employment_start · employment_end · exit_reason · performance_rating (1-5) · notes · is_disputed · created_at</code></p>
+
+      <h4>supplier_records</h4>
+      <p><code>id · supplier_name · supplier_id · logged_by_business_id · relationship_type · reliability_rating (1-5) · payment_behavior · notes · is_disputed · created_at</code></p>
+
+      <h4>disputes</h4>
+      <p><code>id · record_type · record_id · disputed_by_business_id · reason · evidence_url · status (open/resolved/rejected) · resolved_at · created_at</code></p>
+
+      <h4>subscriptions</h4>
+      <p><code>id · business_id · plan · mpesa_transaction_id · amount · period_start · period_end · status · created_at</code></p>
+
+      <div class="callout callout-purple">
+        <p>Enable Supabase Row Level Security on every table from day one. businesses can only write their own records and read others'. Never skip this — it is the security foundation of the entire platform.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const sections=document.querySelectorAll('.section');
+const links=document.querySelectorAll('.sidebar a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('active'));
+      const active=document.querySelector('.sidebar a[href="#'+e.target.id+'"]');
+      if(active)active.classList.add('active');
+    }
+  });
+},{threshold:0.3});
+sections.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>404 — Veribase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#0A0E14;color:#F0F6F8;
+  font-family:'DM Sans',sans-serif;font-weight:300;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:48px;
+}
+.grid{
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(10,191,163,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(10,191,163,0.04) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 0%,transparent 100%);
+  pointer-events:none;
+}
+.code{
+  font-family:'DM Mono',monospace;font-size:11px;
+  letter-spacing:3px;text-transform:uppercase;
+  color:#0ABFA3;margin-bottom:24px;
+}
+h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(64px,12vw,120px);
+  color:#1E2A38;line-height:1;margin-bottom:24px;
+  position:relative;z-index:1;
+}
+h1 span{color:#0ABFA3}
+p{
+  font-size:17px;color:#8FAAB8;
+  max-width:360px;line-height:1.7;margin-bottom:40px;
+}
+a{
+  display:inline-block;
+  background:#0ABFA3;color:#0A0E14;
+  padding:14px 32px;border-radius:8px;
+  font-size:14px;font-weight:500;text-decoration:none;
+  transition:opacity 0.2s;
+}
+a:hover{opacity:0.85}
+.brand{
+  position:fixed;top:24px;left:48px;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:18px;
+  color:#F0F6F8;text-decoration:none;
+}
+.brand span{color:#0ABFA3}
+</style>
+</head>
+<body>
+<div class="grid"></div>
+<a href="/" class="brand">Veri<span>base</span></a>
+<div class="code">Error 404</div>
+<h1>4<span>0</span>4</h1>
+<p>This page doesn't exist in our records. But the truth always does.</p>
+<a href="/">Back to Veribase</a>
+</body>
+</html>
