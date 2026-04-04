@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Veribase — App</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Crect width='52' height='52' rx='10' fill='%230A0E14'/%3E%3Cpath d='M14 14 L26 10 L38 14 L38 28 C38 35 26 42 26 42 C26 42 14 35 14 28 Z' fill='none' stroke='%230ABFA3' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M20 26 L24 30 L32 22' stroke='%230ABFA3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ── RESET & BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0ABFA3;--teal-dim:#087A69;--teal-pale:rgba(10,191,163,0.08);--teal-border:rgba(10,191,163,0.2);
+  --black:#0A0E14;--slate:#111820;--slate2:#1E2A38;--slate3:#253040;
+  --muted:#5A7A8A;--light:#8FAAB8;--white:#F0F6F8;
+  --amber:#F5A623;--red:#E24B4A;--green:#2DD4BF;--purple:#8B7BF5;
+  --sidebar:220px;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;font-weight:300;background:var(--black);color:var(--white);overflow:hidden}
+
+/* ── PAGES ── */
+.page{display:none;height:100vh;overflow:hidden}
+.page.active{display:flex}
+
+/* ── AUTH PAGE ── */
+#page-auth{align-items:center;justify-content:center;flex-direction:column;background:var(--black);position:relative}
+.auth-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(10,191,163,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(10,191,163,0.04) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 0%,transparent 100%)}
+.auth-card{background:var(--slate);border:1px solid rgba(10,191,163,0.15);border-radius:16px;padding:40px;width:100%;max-width:420px;position:relative;z-index:1}
+.auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.auth-logo-mark{width:40px;height:40px}
+.auth-wordmark{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--white)}
+.auth-wordmark span{color:var(--teal)}
+.auth-tabs{display:flex;gap:0;margin-bottom:28px;background:var(--slate2);border-radius:8px;padding:4px}
+.auth-tab{flex:1;padding:9px;border:none;background:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;border-radius:6px;transition:all .2s}
+.auth-tab.active{background:var(--teal);color:var(--black);font-weight:500}
+.auth-form-panel{display:none}
+.auth-form-panel.active{display:block}
+.form-group{margin-bottom:16px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-family:'DM Mono',monospace;letter-spacing:.5px;text-transform:uppercase}
+input,select,textarea{width:100%;background:var(--slate2);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px 14px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+input::placeholder,textarea::placeholder{color:var(--muted)}
+input:focus,select:focus,textarea:focus{border-color:var(--teal)}
+select option{background:var(--slate2)}
+textarea{resize:vertical;min-height:80px}
+.btn{width:100%;padding:13px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--teal);color:var(--black)}
+.btn-primary:hover{opacity:.88}
+.btn-primary:disabled{opacity:.4;cursor:default}
+.btn-secondary{background:var(--slate2);color:var(--white);border:1px solid rgba(255,255,255,0.08)}
+.btn-secondary:hover{border-color:var(--teal-border)}
+.btn-danger{background:rgba(226,75,74,0.15);color:var(--red);border:1px solid rgba(226,75,74,0.3)}
+.auth-error{background:rgba(226,75,74,0.1);border:1px solid rgba(226,75,74,0.3);border-radius:8px;padding:12px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+.auth-success{background:var(--teal-pale);border:1px solid var(--teal-border);border-radius:8px;padding:12px;font-size:13px;color:var(--teal);margin-bottom:16px;display:none}
+
+/* ── APP SHELL ── */
+#page-app{flex-direction:row}
+.sidebar{width:var(--sidebar);background:var(--slate);border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;flex-shrink:0;height:100vh;overflow-y:auto}
+.sidebar-brand{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.sidebar-wordmark{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--white)}
+.sidebar-wordmark span{color:var(--teal)}
+.sidebar-biz{font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-nav{padding:16px 12px;flex:1}
+.nav-section{margin-bottom:24px}
+.nav-section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:0 8px;margin-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;color:var(--muted);transition:all .15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--slate2);color:var(--white)}
+.nav-item.active{background:var(--teal-pale);color:var(--teal);border:1px solid var(--teal-border)}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:.6}
+.nav-item.active .nav-icon{opacity:1}
+.sidebar-bottom{padding:16px 12px;border-top:1px solid rgba(255,255,255,0.05)}
+.sidebar-plan{background:var(--teal-pale);border:1px solid var(--teal-border);border-radius:8px;padding:12px;margin-bottom:12px}
+.sidebar-plan-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);letter-spacing:1px;text-transform:uppercase}
+.sidebar-plan-name{font-size:13px;color:var(--white);font-weight:500;margin-top:2px}
+
+/* ── MAIN CONTENT ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid rgba(255,255,255,0.05);flex-shrink:0}
+.topbar-title{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--white)}
+.topbar-actions{display:flex;gap:12px;align-items:center}
+.badge-free{background:rgba(245,166,35,.15);color:var(--amber);border:1px solid rgba(245,166,35,.3);padding:4px 12px;border-radius:100px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.5px}
+.badge-active{background:var(--teal-pale);color:var(--teal);border:1px solid var(--teal-border);padding:4px 12px;border-radius:100px;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:.5px}
+.content-area{flex:1;overflow-y:auto;padding:32px}
+.view{display:none}
+.view.active{display:block}
+
+/* ── CARDS & GRIDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.stat-card{background:var(--slate2);border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,0.05)}
+.stat-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-value{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--white)}
+.stat-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--white)}
+.card{background:var(--slate2);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:24px;margin-bottom:16px}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--white)}
+.card-sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--slate2);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.05)}
+table{width:100%;border-collapse:collapse}
+th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:14px 16px;text-align:left;background:var(--slate);border-bottom:1px solid rgba(255,255,255,0.06)}
+td{padding:14px 16px;font-size:13px;color:var(--light);border-bottom:1px solid rgba(255,255,255,0.03)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+td.name{color:var(--white);font-weight:400}
+
+/* ── RATING STARS ── */
+.stars{color:var(--amber);font-size:12px;letter-spacing:1px}
+.stars-input{display:flex;gap:4px;margin-top:6px}
+.star-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--slate3);transition:color .1s;padding:0}
+.star-btn.active{color:var(--amber)}
+
+/* ── SEARCH ── */
+.search-bar{display:flex;gap:12px;margin-bottom:24px}
+.search-bar input{flex:1}
+.search-bar select{width:160px}
+.search-results{margin-top:8px}
+.result-card{background:var(--slate2);border:1px solid rgba(255,255,255,0.05);border-radius:10px;padding:20px;margin-bottom:12px;transition:border-color .2s}
+.result-card:hover{border-color:var(--teal-border)}
+.result-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--white);margin-bottom:4px}
+.result-meta{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px}
+.result-ratings{display:flex;gap:20px}
+.rating-item{font-size:12px;color:var(--light)}
+.rating-item strong{color:var(--white)}
+.result-tag{display:inline-block;padding:2px 10px;border-radius:100px;font-size:11px;font-family:'DM Mono',monospace;margin-right:6px}
+.tag-green{background:rgba(45,212,191,.1);color:var(--green);border:1px solid rgba(45,212,191,.2)}
+.tag-red{background:rgba(226,75,74,.1);color:var(--red);border:1px solid rgba(226,75,74,.2)}
+.tag-amber{background:rgba(245,166,35,.1);color:var(--amber);border:1px solid rgba(245,166,35,.2)}
+.tag-muted{background:rgba(90,122,138,.1);color:var(--muted);border:1px solid rgba(90,122,138,.2)}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--slate);border:1px solid rgba(10,191,163,0.15);border-radius:16px;padding:32px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+.modal-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--white);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 8px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-actions{display:flex;gap:12px;margin-top:24px}
+.form-actions .btn{flex:1}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:60px 20px}
+.empty-icon{font-size:40px;margin-bottom:16px;opacity:.4}
+.empty-title{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--white);margin-bottom:8px}
+.empty-desc{font-size:14px;color:var(--muted);max-width:300px;margin:0 auto 20px}
+
+/* ── PROFILE ── */
+.profile-header{background:var(--slate2);border-radius:12px;padding:28px;margin-bottom:20px;display:flex;align-items:center;gap:20px;border:1px solid rgba(255,255,255,0.05)}
+.profile-avatar{width:64px;height:64px;border-radius:12px;background:var(--teal-pale);border:1px solid var(--teal-border);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:24px;color:var(--teal);flex-shrink:0}
+.profile-name{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--white);margin-bottom:4px}
+.profile-industry{font-size:13px;color:var(--muted)}
+.profile-stats{display:flex;gap:24px;margin-top:12px}
+.profile-stat{text-align:center}
+.profile-stat-num{font-family:'Syne',sans-serif;font-weight:700;font-size:20px;color:var(--teal)}
+.profile-stat-label{font-size:11px;color:var(--muted)}
+
+/* ── PRICING ── */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.price-card{background:var(--slate2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px;position:relative}
+.price-card.featured{border:2px solid var(--teal)}
+.price-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--teal);color:var(--black);font-family:'DM Mono',monospace;font-size:10px;padding:3px 12px;border-radius:100px;font-weight:500;letter-spacing:1px;white-space:nowrap}
+.price-name{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--white);margin-bottom:4px}
+.price-amount{font-family:'Syne',sans-serif;font-weight:800;font-size:32px;color:var(--white);margin:12px 0 4px}
+.price-amount span{font-size:14px;color:var(--muted);font-weight:300}
+.price-features{margin:16px 0;list-style:none;padding:0}
+.price-features li{font-size:13px;color:var(--light);padding:5px 0;display:flex;align-items:center;gap:8px}
+.price-features li::before{content:'✓';color:var(--teal);font-weight:700;font-size:12px}
+.price-features li.off{color:var(--muted)}
+.price-features li.off::before{content:'×';color:var(--muted)}
+
+/* ── NOTIFICATION ── */
+.notif{position:fixed;bottom:24px;right:24px;padding:14px 20px;border-radius:10px;font-size:14px;z-index:200;display:none;align-items:center;gap:10px;max-width:320px;animation:slideUp .3s ease}
+.notif.open{display:flex}
+.notif-success{background:var(--teal-pale);border:1px solid var(--teal-border);color:var(--teal)}
+.notif-error{background:rgba(226,75,74,.1);border:1px solid rgba(226,75,74,.3);color:var(--red)}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── LOADING ── */
+.spinner{width:20px;height:20px;border:2px solid rgba(10,191,163,.3);border-top-color:var(--teal);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{position:absolute;inset:0;background:rgba(10,14,20,.8);display:flex;align-items:center;justify-content:center;z-index:50;border-radius:16px}
+
+/* ── ONBOARDING ── */
+.onboard-step{display:none}
+.onboard-step.active{display:block}
+.step-indicator{display:flex;gap:8px;margin-bottom:24px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.15)}
+.step-dot.done{background:var(--teal)}
+.step-dot.current{background:var(--white);width:20px;border-radius:4px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .sidebar{width:60px}
+  .sidebar-brand,.sidebar-biz,.nav-section-label,.nav-item span,.sidebar-bottom{display:none}
+  .nav-item{justify-content:center;padding:12px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .pricing-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     AUTH PAGE
+══════════════════════════════════════════ -->
+<div class="page active" id="page-auth">
+  <div class="auth-grid"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg class="auth-logo-mark" viewBox="0 0 52 52" fill="none">
+        <path d="M14 14L26 10L38 14L38 28C38 35 26 42 26 42S14 35 14 28Z" fill="none" stroke="#0ABFA3" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M20 26L24 30L32 22" stroke="#0ABFA3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="auth-wordmark">Veri<span>base</span></div>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+    <div id="auth-success" class="auth-success"></div>
+
+    <!-- LOGIN -->
+    <div class="auth-form-panel active" id="panel-login">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@business.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••"/>
+      </div>
+      <button class="btn btn-primary" onclick="login()">Sign In</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="auth-form-panel" id="panel-register">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="you@business.com"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="reg-password" placeholder="Min. 8 characters"/>
+      </div>
+      <button class="btn btn-primary" onclick="register()">Create Account</button>
+      <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:12px">By registering you agree to our <a href="terms.html" style="color:var(--teal)">Terms</a> and <a href="privacy-policy.html" style="color:var(--teal)">Privacy Policy</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     ONBOARDING — Business Setup
+══════════════════════════════════════════ -->
+<div class="page" id="page-onboard">
+  <div class="auth-grid"></div>
+  <div class="auth-card" style="max-width:520px">
+    <div class="auth-logo">
+      <svg width="32" height="32" viewBox="0 0 52 52" fill="none">
+        <path d="M14 14L26 10L38 14L38 28C38 35 26 42 26 42S14 35 14 28Z" fill="none" stroke="#0ABFA3" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M20 26L24 30L32 22" stroke="#0ABFA3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="auth-wordmark">Veri<span>base</span></div>
+    </div>
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:var(--white);margin-bottom:6px">Set up your business</div>
+      <div style="font-size:13px;color:var(--muted)">Tell us about your business to get started</div>
+    </div>
+    <div id="onboard-error" class="auth-error"></div>
+    <div class="form-group">
+      <label>Business Name *</label>
+      <input type="text" id="ob-name" placeholder="e.g. Mwangi Wholesale Ltd"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Industry *</label>
+        <select id="ob-industry">
+          <option value="">Select industry</option>
+          <option>Retail</option>
+          <option>Wholesale & Distribution</option>
+          <option>Manufacturing</option>
+          <option>Technology</option>
+          <option>Food & Beverage</option>
+          <option>Healthcare</option>
+          <option>Finance & Insurance</option>
+          <option>Construction</option>
+          <option>Transport & Logistics</option>
+          <option>Agriculture</option>
+          <option>Education</option>
+          <option>Hospitality</option>
+          <option>Professional Services</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Location *</label>
+        <select id="ob-location">
+          <option value="">Select county</option>
+          <option>Nairobi</option><option>Mombasa</option><option>Kisumu</option>
+          <option>Nakuru</option><option>Eldoret</option><option>Thika</option>
+          <option>Nyeri</option><option>Machakos</option><option>Kitale</option>
+          <option>Malindi</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>KRA PIN (optional)</label>
+        <input type="text" id="ob-kra" placeholder="A123456789Z"/>
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="tel" id="ob-phone" placeholder="0712345678"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Brief Description</label>
+      <textarea id="ob-desc" placeholder="What does your business do?"></textarea>
+    </div>
+    <button class="btn btn-primary" id="ob-btn" onclick="createBusiness()">Complete Setup →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════════ -->
+<div class="page" id="page-app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-wordmark">Veri<span>base</span></div>
+      <div class="sidebar-biz" id="sb-biz-name">Loading...</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Main</div>
+        <button class="nav-item active" onclick="showView('dashboard')">
+          <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-item" onclick="showView('search')">
+          <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M11 11L15 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Search</span>
+        </button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Records</div>
+        <button class="nav-item" onclick="showView('staff')">
+          <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 13c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Staff Records</span>
+        </button>
+        <button class="nav-item" onclick="showView('suppliers')">
+          <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 4V3a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="1.5"/></svg>
+          <span>Suppliers</span>
+        </button>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Account</div>
+        <button class="nav-item" onclick="showView('profile')">
+          <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>My Profile</span>
+        </button>
+        <button class="nav-item" onclick="showView('pricing')">
+          <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 4v1m0 6v1M6 6.5A1.5 1.5 0 0 1 8 5h0a1.5 1.5 0 0 1 0 3h0A1.5 1.5 0 0 0 8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span>Upgrade</span>
+        </button>
+      </div>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-plan">
+        <div class="sidebar-plan-label">Current Plan</div>
+        <div class="sidebar-plan-name" id="sb-plan">Free</div>
+      </div>
+      <button class="nav-item" onclick="logout()" style="color:var(--muted)">
+        <svg class="nav-icon" fill="none" viewBox="0 0 16 16"><path d="M6 2H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M10 11l4-3-4-3M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="view-title">Dashboard</div>
+      <div class="topbar-actions">
+        <div id="plan-badge" class="badge-free">Free Plan</div>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Staff Records</div>
+            <div class="stat-value" id="stat-staff">0</div>
+            <div class="stat-sub">logged by your business</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Supplier Records</div>
+            <div class="stat-value" id="stat-suppliers">0</div>
+            <div class="stat-sub">logged by your business</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total on Platform</div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-sub">businesses verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Searches Today</div>
+            <div class="stat-value" id="stat-searches">—</div>
+            <div class="stat-sub">lookups performed</div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <div class="section-title">Recent Staff Records</div>
+          <button class="btn btn-secondary" style="width:auto;padding:8px 16px;font-size:13px" onclick="showView('staff')">View All</button>
+        </div>
+        <div id="dash-staff-list"></div>
+
+        <div class="section-header" style="margin-top:24px">
+          <div class="section-title">Recent Supplier Records</div>
+          <button class="btn btn-secondary" style="width:auto;padding:8px 16px;font-size:13px" onclick="showView('suppliers')">View All</button>
+        </div>
+        <div id="dash-supplier-list"></div>
+
+        <!-- Upgrade banner for free users -->
+        <div id="upgrade-banner" style="display:none;background:linear-gradient(135deg,rgba(10,191,163,0.08),rgba(139,123,245,0.08));border:1px solid var(--teal-border);border-radius:12px;padding:24px;margin-top:24px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--white);margin-bottom:4px">Unlock full search access</div>
+            <div style="font-size:13px;color:var(--muted)">Upgrade to search any staff or supplier on the platform — not just your own records.</div>
+          </div>
+          <button class="btn btn-primary" style="width:auto;padding:10px 24px;white-space:nowrap;margin-left:24px" onclick="showView('pricing')">Upgrade Now</button>
+        </div>
+      </div>
+
+      <!-- ── SEARCH ── -->
+      <div class="view" id="view-search">
+        <div style="margin-bottom:24px">
+          <div style="font-size:14px;color:var(--muted);margin-bottom:16px">Search any person or supplier across the entire Veribase network. Requires active subscription.</div>
+        </div>
+        <div class="search-bar">
+          <input type="text" id="search-input" placeholder="Name, ID number, or company name..." onkeydown="if(event.key==='Enter')runSearch()"/>
+          <select id="search-type">
+            <option value="staff">Staff / People</option>
+            <option value="supplier">Suppliers</option>
+          </select>
+          <button class="btn btn-primary" style="width:auto;padding:0 24px;white-space:nowrap" onclick="runSearch()">Search</button>
+        </div>
+        <div id="search-results">
+          <div class="empty">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">Search the network</div>
+            <div class="empty-desc">Type a name or ID number above to look up anyone on Veribase</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STAFF RECORDS ── -->
+      <div class="view" id="view-staff">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Staff Records</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:2px">Employment history you have logged</div>
+          </div>
+          <button class="btn btn-primary" style="width:auto;padding:10px 20px" onclick="openModal('modal-add-staff')">+ Log Staff Record</button>
+        </div>
+        <div id="staff-list">
+          <div class="empty">
+            <div class="empty-icon">👤</div>
+            <div class="empty-title">No staff records yet</div>
+            <div class="empty-desc">Start logging employment history for current and former staff</div>
+            <button class="btn btn-primary" style="width:auto;padding:10px 20px;margin:0 auto" onclick="openModal('modal-add-staff')">Log First Record</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SUPPLIERS ── -->
+      <div class="view" id="view-suppliers">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Supplier Records</div>
+            <div style="font-size:13px;color:var(--muted);margin-top:2px">Supplier relationships and ratings</div>
+          </div>
+          <button class="btn btn-primary" style="width:auto;padding:10px 20px" onclick="openModal('modal-add-supplier')">+ Log Supplier</button>
+        </div>
+        <div id="supplier-list">
+          <div class="empty">
+            <div class="empty-icon">📦</div>
+            <div class="empty-title">No supplier records yet</div>
+            <div class="empty-desc">Log your supplier relationships — good and bad — to help the network</div>
+            <button class="btn btn-primary" style="width:auto;padding:10px 20px;margin:0 auto" onclick="openModal('modal-add-supplier')">Log First Supplier</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROFILE ── -->
+      <div class="view" id="view-profile">
+        <div class="profile-header">
+          <div class="profile-avatar" id="prof-avatar">V</div>
+          <div>
+            <div class="profile-name" id="prof-name">Your Business</div>
+            <div class="profile-industry" id="prof-industry">Industry · Location</div>
+            <div class="profile-stats">
+              <div class="profile-stat"><div class="profile-stat-num" id="prof-staff-count">0</div><div class="profile-stat-label">Staff logged</div></div>
+              <div class="profile-stat"><div class="profile-stat-num" id="prof-supplier-count">0</div><div class="profile-stat-label">Suppliers logged</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Business Details</div>
+              <div class="card-sub">Your registered information</div>
+            </div>
+            <button class="btn btn-secondary" style="width:auto;padding:8px 16px;font-size:13px" onclick="openModal('modal-edit-profile')">Edit</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="prof-details"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Account & Security</div>
+          </div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:16px" id="prof-email"></div>
+          <button class="btn btn-danger" style="width:auto;padding:10px 20px;font-size:13px" onclick="logout()">Sign Out</button>
+        </div>
+      </div>
+
+      <!-- ── PRICING ── -->
+      <div class="view" id="view-pricing">
+        <div style="margin-bottom:8px;font-size:14px;color:var(--muted)">Choose the plan that fits your business. Cancel anytime.</div>
+        <div class="pricing-grid">
+          <div class="price-card">
+            <div class="price-name">Free</div>
+            <div class="price-amount">KSh 0<span>/month</span></div>
+            <ul class="price-features">
+              <li>Log up to 10 staff records</li>
+              <li>Log up to 5 supplier records</li>
+              <li>View your own records</li>
+              <li class="off">Search the full network</li>
+              <li class="off">View other businesses' records</li>
+              <li class="off">Export reports</li>
+              <li class="off">API access</li>
+            </ul>
+            <button class="btn btn-secondary" disabled>Current Plan</button>
+          </div>
+          <div class="price-card featured">
+            <div class="price-badge">MOST POPULAR</div>
+            <div class="price-name">Starter</div>
+            <div class="price-amount">KSh 2,500<span>/month</span></div>
+            <ul class="price-features">
+              <li>Unlimited staff records</li>
+              <li>Unlimited supplier records</li>
+              <li>Full network search</li>
+              <li>View all platform records</li>
+              <li>Basic export (CSV)</li>
+              <li>Email support</li>
+              <li class="off">API access</li>
+            </ul>
+            <button class="btn btn-primary" onclick="initPayment('starter',2500)">Upgrade — KSh 2,500</button>
+          </div>
+          <div class="price-card">
+            <div class="price-name">Professional</div>
+            <div class="price-amount">KSh 5,000<span>/month</span></div>
+            <ul class="price-features">
+              <li>Everything in Starter</li>
+              <li>Advanced analytics</li>
+              <li>PDF & Excel exports</li>
+              <li>Priority support</li>
+              <li>Dispute resolution priority</li>
+              <li>Business verification badge</li>
+              <li>API read access</li>
+            </ul>
+            <button class="btn btn-secondary" onclick="initPayment('professional',5000)">Upgrade — KSh 5,000</button>
+          </div>
+        </div>
+        <div style="margin-top:24px;padding:20px;background:var(--slate2);border-radius:10px;border:1px solid rgba(255,255,255,0.05)">
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--white);margin-bottom:6px">Enterprise — Banks & Fintechs</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:12px">API access for loan underwriting, bulk lookups, and custom data integrations. Starts at KSh 500K/year.</div>
+          <a href="mailto:enterprise@veribase.co" style="color:var(--teal);font-size:14px">Contact us →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════ -->
+
+<!-- ADD STAFF -->
+<div class="modal-overlay" id="modal-add-staff">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('modal-add-staff')">×</button>
+    <div class="modal-title">Log Staff Record</div>
+    <div class="modal-sub">Record employment history for a current or former staff member</div>
+    <div id="staff-form-error" class="auth-error"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Full Name *</label><input type="text" id="sf-name" placeholder="Jane Mwangi"/></div>
+      <div class="form-group"><label>National ID Number *</label><input type="text" id="sf-id" placeholder="12345678"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Position / Role *</label><input type="text" id="sf-position" placeholder="Cashier, Manager..."/></div>
+      <div class="form-group"><label>Phone (optional)</label><input type="tel" id="sf-phone" placeholder="0712345678"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Start Date *</label><input type="date" id="sf-start"/></div>
+      <div class="form-group"><label>End Date</label><input type="date" id="sf-end"/></div>
+    </div>
+    <div class="form-group">
+      <label>Still employed?</label>
+      <select id="sf-active">
+        <option value="false">No — left the business</option>
+        <option value="true">Yes — currently employed</option>
+      </select>
+    </div>
+    <div id="sf-exit-section">
+      <div class="form-group">
+        <label>Reason for Leaving</label>
+        <select id="sf-exit">
+          <option value="resigned">Resigned</option>
+          <option value="dismissed">Dismissed</option>
+          <option value="contract_end">Contract ended</option>
+          <option value="redundancy">Redundancy</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Performance Rating</label>
+      <div class="stars-input" id="sf-perf-stars" data-val="0">
+        <button class="star-btn" data-v="1" onclick="setRating('sf-perf',1)">★</button>
+        <button class="star-btn" data-v="2" onclick="setRating('sf-perf',2)">★</button>
+        <button class="star-btn" data-v="3" onclick="setRating('sf-perf',3)">★</button>
+        <button class="star-btn" data-v="4" onclick="setRating('sf-perf',4)">★</button>
+        <button class="star-btn" data-v="5" onclick="setRating('sf-perf',5)">★</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Reliability Rating</label>
+      <div class="stars-input" id="sf-rel-stars" data-val="0">
+        <button class="star-btn" data-v="1" onclick="setRating('sf-rel',1)">★</button>
+        <button class="star-btn" data-v="2" onclick="setRating('sf-rel',2)">★</button>
+        <button class="star-btn" data-v="3" onclick="setRating('sf-rel',3)">★</button>
+        <button class="star-btn" data-v="4" onclick="setRating('sf-rel',4)">★</button>
+        <button class="star-btn" data-v="5" onclick="setRating('sf-rel',5)">★</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Would you rehire?</label>
+      <select id="sf-rehire">
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <textarea id="sf-notes" placeholder="Additional context about this staff member..."></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-staff')">Cancel</button>
+      <button class="btn btn-primary" id="sf-submit" onclick="submitStaffRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD SUPPLIER -->
+<div class="modal-overlay" id="modal-add-supplier">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('modal-add-supplier')">×</button>
+    <div class="modal-title">Log Supplier Record</div>
+    <div class="modal-sub">Record your experience with a supplier</div>
+    <div id="sup-form-error" class="auth-error"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Supplier Name *</label><input type="text" id="sup-name" placeholder="ABC Distributors Ltd"/></div>
+      <div class="form-group"><label>KRA PIN (optional)</label><input type="text" id="sup-kra" placeholder="P123456789X"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Phone</label><input type="tel" id="sup-phone" placeholder="0712345678"/></div>
+      <div class="form-group"><label>Email</label><input type="email" id="sup-email" placeholder="supplier@email.com"/></div>
+    </div>
+    <div class="form-group"><label>Goods / Services Supplied *</label><input type="text" id="sup-goods" placeholder="e.g. FMCG goods, electronics, fresh produce..."/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Relationship Start *</label><input type="date" id="sup-start"/></div>
+      <div class="form-group"><label>Relationship End</label><input type="date" id="sup-end"/></div>
+    </div>
+    <div class="form-group">
+      <label>Still active supplier?</label>
+      <select id="sup-active">
+        <option value="true">Yes — currently supplying</option>
+        <option value="false">No — relationship ended</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Payment Behavior</label>
+      <select id="sup-payment">
+        <option value="always_on_time">Always on time</option>
+        <option value="usually_on_time">Usually on time</option>
+        <option value="sometimes_late">Sometimes late</option>
+        <option value="often_late">Often late</option>
+        <option value="defaulted">Defaulted on payment</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Delivery Rating</label>
+      <div class="stars-input" id="sup-del-stars" data-val="0">
+        <button class="star-btn" data-v="1" onclick="setRating('sup-del',1)">★</button>
+        <button class="star-btn" data-v="2" onclick="setRating('sup-del',2)">★</button>
+        <button class="star-btn" data-v="3" onclick="setRating('sup-del',3)">★</button>
+        <button class="star-btn" data-v="4" onclick="setRating('sup-del',4)">★</button>
+        <button class="star-btn" data-v="5" onclick="setRating('sup-del',5)">★</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Quality Rating</label>
+      <div class="stars-input" id="sup-qual-stars" data-val="0">
+        <button class="star-btn" data-v="1" onclick="setRating('sup-qual',1)">★</button>
+        <button class="star-btn" data-v="2" onclick="setRating('sup-qual',2)">★</button>
+        <button class="star-btn" data-v="3" onclick="setRating('sup-qual',3)">★</button>
+        <button class="star-btn" data-v="4" onclick="setRating('sup-qual',4)">★</button>
+        <button class="star-btn" data-v="5" onclick="setRating('sup-qual',5)">★</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Would you recommend?</label>
+        <select id="sup-recommend">
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Total Business (KSh)</label>
+        <input type="number" id="sup-volume" placeholder="e.g. 500000"/>
+      </div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="sup-notes" placeholder="Any important context about this supplier..."></textarea></div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-add-supplier')">Cancel</button>
+      <button class="btn btn-primary" id="sup-submit" onclick="submitSupplierRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE -->
+<div class="modal-overlay" id="modal-edit-profile">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal('modal-edit-profile')">×</button>
+    <div class="modal-title">Edit Business Profile</div>
+    <div class="modal-sub">Update your business information</div>
+    <div class="form-group"><label>Business Name *</label><input type="text" id="ep-name"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Industry</label><select id="ep-industry"><option>Retail</option><option>Wholesale & Distribution</option><option>Manufacturing</option><option>Technology</option><option>Food & Beverage</option><option>Healthcare</option><option>Finance & Insurance</option><option>Construction</option><option>Transport & Logistics</option><option>Agriculture</option><option>Education</option><option>Hospitality</option><option>Professional Services</option><option>Other</option></select></div>
+      <div class="form-group"><label>Location</label><select id="ep-location"><option>Nairobi</option><option>Mombasa</option><option>Kisumu</option><option>Nakuru</option><option>Eldoret</option><option>Thika</option><option>Nyeri</option><option>Machakos</option><option>Kitale</option><option>Malindi</option><option>Other</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>KRA PIN</label><input type="text" id="ep-kra"/></div>
+      <div class="form-group"><label>Phone</label><input type="tel" id="ep-phone"/></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="ep-desc"></textarea></div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-profile')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="modal-payment">
+  <div class="modal" style="position:relative;max-width:400px">
+    <button class="modal-close" onclick="closeModal('modal-payment')">×</button>
+    <div class="modal-title">Pay with M-Pesa</div>
+    <div class="modal-sub" id="payment-desc">Complete your subscription payment</div>
+    <div class="form-group">
+      <label>M-Pesa Phone Number</label>
+      <input type="tel" id="pay-phone" placeholder="0712345678"/>
+    </div>
+    <div style="background:var(--teal-pale);border:1px solid var(--teal-border);border-radius:8px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--light)">
+      You will receive an M-Pesa STK push on your phone. Enter your PIN to complete payment. Amount: <strong style="color:var(--white)" id="pay-amount">KSh —</strong>
+    </div>
+    <div id="pay-error" class="auth-error"></div>
+    <div id="pay-success" class="auth-success">Payment initiated! Check your phone for the M-Pesa prompt. Your plan will activate within 2 minutes.</div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-payment')">Cancel</button>
+      <button class="btn btn-primary" id="pay-btn" onclick="processPayment()">Pay Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif"></div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG — Replace with your Supabase details
+// ══════════════════════════════════════════
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+// ══════════════════════════════════════════
+// SUPABASE INIT
+// ══════════════════════════════════════════
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// App state
+let currentUser = null;
+let currentBusiness = null;
+let paymentPlan = null;
+let paymentAmount = 0;
+
+// Star ratings state
+const ratings = { 'sf-perf': 0, 'sf-rel': 0, 'sup-del': 0, 'sup-qual': 0 };
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await loadBusiness();
+  } else {
+    showPage('page-auth');
+  }
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+      await loadBusiness();
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      currentBusiness = null;
+      showPage('page-auth');
+    }
+  });
+}
+
+async function loadBusiness() {
+  const { data } = await sb.from('businesses').select('*').eq('user_id', currentUser.id).single();
+  if (data) {
+    currentBusiness = data;
+    showPage('page-app');
+    updateSidebar();
+    await loadDashboardData();
+  } else {
+    showPage('page-onboard');
+  }
+}
+
+// ══════════════════════════════════════════
+// PAGE NAVIGATION
+// ══════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(name.replace('-',' '))) n.classList.add('active');
+  });
+  const titles = { dashboard: 'Dashboard', search: 'Search Network', staff: 'Staff Records', suppliers: 'Supplier Records', profile: 'My Profile', pricing: 'Upgrade Plan' };
+  document.getElementById('view-title').textContent = titles[name] || name;
+  if (name === 'staff') loadStaffList();
+  if (name === 'suppliers') loadSupplierList();
+  if (name === 'profile') loadProfile();
+}
+
+// ══════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.auth-form-panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  clearAuthMessages();
+}
+
+function clearAuthMessages() {
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-success').style.display = 'none';
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+async function login() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) return showAuthError('Please enter email and password.');
+  clearAuthMessages();
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) showAuthError(error.message);
+}
+
+async function register() {
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  if (!email || !password) return showAuthError('Please enter email and password.');
+  if (password.length < 8) return showAuthError('Password must be at least 8 characters.');
+  clearAuthMessages();
+  const { error } = await sb.auth.signUp({ email, password });
+  if (error) showAuthError(error.message);
+  else {
+    document.getElementById('auth-success').textContent = 'Account created! Please check your email to verify, then sign in.';
+    document.getElementById('auth-success').style.display = 'block';
+  }
+}
+
+async function logout() {
+  await sb.auth.signOut();
+}
+
+// ══════════════════════════════════════════
+// ONBOARDING — Create business
+// ══════════════════════════════════════════
+async function createBusiness() {
+  const name = document.getElementById('ob-name').value.trim();
+  const industry = document.getElementById('ob-industry').value;
+  const location = document.getElementById('ob-location').value;
+  const kra = document.getElementById('ob-kra').value.trim();
+  const phone = document.getElementById('ob-phone').value.trim();
+  const desc = document.getElementById('ob-desc').value.trim();
+
+  if (!name || !industry || !location) {
+    document.getElementById('onboard-error').textContent = 'Please fill in all required fields.';
+    document.getElementById('onboard-error').style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('ob-btn');
+  btn.disabled = true; btn.textContent = 'Setting up...';
+
+  const { data, error } = await sb.from('businesses').insert({
+    user_id: currentUser.id,
+    name, industry, location,
+    kra_pin: kra || null,
+    phone: phone || null,
+    description: desc || null
+  }).select().single();
+
+  if (error) {
+    document.getElementById('onboard-error').textContent = error.message;
+    document.getElementById('onboard-error').style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Complete Setup →';
+  } else {
+    currentBusiness = data;
+    showPage('page-app');
+    updateSidebar();
+    await loadDashboardData();
+  }
+}
+
+// ══════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════
+function updateSidebar() {
+  if (!currentBusiness) return;
+  document.getElementById('sb-biz-name').textContent = currentBusiness.name;
+  const plan = currentBusiness.subscription_status;
+  document.getElementById('sb-plan').textContent = plan === 'active' ? 'Starter' : 'Free';
+  const badge = document.getElementById('plan-badge');
+  badge.textContent = plan === 'active' ? 'Starter Plan' : 'Free Plan';
+  badge.className = plan === 'active' ? 'badge-active' : 'badge-free';
+}
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+async function loadDashboardData() {
+  if (!currentBusiness) return;
+
+  // Counts
+  const [staffRes, supRes, bizRes] = await Promise.all([
+    sb.from('staff_records').select('id', { count: 'exact', head: true }).eq('logged_by', currentBusiness.id),
+    sb.from('supplier_records').select('id', { count: 'exact', head: true }).eq('logged_by', currentBusiness.id),
+    sb.from('businesses').select('id', { count: 'exact', head: true })
+  ]);
+
+  document.getElementById('stat-staff').textContent = staffRes.count || 0;
+  document.getElementById('stat-suppliers').textContent = supRes.count || 0;
+  document.getElementById('stat-total').textContent = bizRes.count || 0;
+
+  // Recent staff
+  const { data: staffData } = await sb.from('staff_records').select('*').eq('logged_by', currentBusiness.id).order('created_at', { ascending: false }).limit(3);
+  renderDashList('dash-staff-list', staffData, 'staff');
+
+  // Recent suppliers
+  const { data: supData } = await sb.from('supplier_records').select('*').eq('logged_by', currentBusiness.id).order('created_at', { ascending: false }).limit(3);
+  renderDashList('dash-supplier-list', supData, 'supplier');
+
+  // Show upgrade banner for free users
+  if (currentBusiness.subscription_status !== 'active') {
+    document.getElementById('upgrade-banner').style.display = 'flex';
+  }
+}
+
+function renderDashList(elId, data, type) {
+  const el = document.getElementById(elId);
+  if (!data || !data.length) {
+    el.innerHTML = `<div style="padding:16px;color:var(--muted);font-size:13px">No ${type} records logged yet.</div>`;
+    return;
+  }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>Name</th>
+      ${type === 'staff' ? '<th>Position</th><th>Status</th>' : '<th>Goods / Services</th><th>Status</th>'}
+      <th>Rating</th><th>Logged</th>
+    </tr></thead>
+    <tbody>${data.map(r => type === 'staff' ? staffRow(r) : supplierRow(r)).join('')}</tbody>
+  </table></div>`;
+}
+
+// ══════════════════════════════════════════
+// STAFF
+// ══════════════════════════════════════════
+async function loadStaffList() {
+  if (!currentBusiness) return;
+  const { data } = await sb.from('staff_records').select('*').eq('logged_by', currentBusiness.id).order('created_at', { ascending: false });
+  const el = document.getElementById('staff-list');
+  if (!data || !data.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">👤</div><div class="empty-title">No staff records yet</div><div class="empty-desc">Log employment history for current and former staff</div><button class="btn btn-primary" style="width:auto;padding:10px 20px;margin:0 auto" onclick="openModal('modal-add-staff')">Log First Record</button></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th>ID Number</th><th>Position</th><th>Status</th><th>Performance</th><th>Rehire?</th><th>Period</th></tr></thead>
+    <tbody>${data.map(staffRow).join('')}</tbody>
+  </table></div>`;
+}
+
+function staffRow(r) {
+  const status = r.is_active ? `<span class="result-tag tag-green">Active</span>` : `<span class="result-tag tag-muted">${r.exit_reason?.replace('_',' ') || 'Left'}</span>`;
+  const rehire = r.rehire_recommended ? `<span class="result-tag tag-green">Yes</span>` : `<span class="result-tag tag-red">No</span>`;
+  const stars = r.performance_rating ? '★'.repeat(r.performance_rating) + '☆'.repeat(5 - r.performance_rating) : '—';
+  const period = r.employment_start ? `${r.employment_start.slice(0,7)}${r.employment_end ? ' → ' + r.employment_end.slice(0,7) : ' → now'}` : '—';
+  return `<tr><td class="name">${r.subject_name}</td><td>${r.subject_id_number}</td><td>${r.position}</td><td>${status}</td><td style="color:var(--amber);letter-spacing:1px">${stars}</td><td>${rehire}</td><td style="font-size:12px;color:var(--muted)">${period}</td></tr>`;
+}
+
+async function submitStaffRecord() {
+  const name = document.getElementById('sf-name').value.trim();
+  const idNum = document.getElementById('sf-id').value.trim();
+  const position = document.getElementById('sf-position').value.trim();
+  const start = document.getElementById('sf-start').value;
+  const end = document.getElementById('sf-end').value;
+  const isActive = document.getElementById('sf-active').value === 'true';
+  const exit = document.getElementById('sf-exit').value;
+  const phone = document.getElementById('sf-phone').value.trim();
+  const rehire = document.getElementById('sf-rehire').value === 'true';
+  const notes = document.getElementById('sf-notes').value.trim();
+
+  const errEl = document.getElementById('staff-form-error');
+  if (!name || !idNum || !position || !start) {
+    errEl.textContent = 'Please fill in all required fields.'; errEl.style.display = 'block'; return;
+  }
+  errEl.style.display = 'none';
+
+  const btn = document.getElementById('sf-submit');
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  const { error } = await sb.from('staff_records').insert({
+    logged_by: currentBusiness.id,
+    subject_name: name, subject_id_number: idNum, position,
+    employment_start: start, employment_end: end || null,
+    is_active: isActive, exit_reason: isActive ? null : exit,
+    subject_phone: phone || null,
+    performance_rating: ratings['sf-perf'] || null,
+    reliability_rating: ratings['sf-rel'] || null,
+    rehire_recommended: rehire, notes: notes || null
+  });
+
+  btn.disabled = false; btn.textContent = 'Save Record';
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+  closeModal('modal-add-staff');
+  showNotif('Staff record saved successfully', 'success');
+  resetForm('staff');
+  if (document.getElementById('view-staff').classList.contains('active')) loadStaffList();
+  loadDashboardData();
+}
+
+// ══════════════════════════════════════════
+// SUPPLIERS
+// ══════════════════════════════════════════
+async function loadSupplierList() {
+  if (!currentBusiness) return;
+  const { data } = await sb.from('supplier_records').select('*').eq('logged_by', currentBusiness.id).order('created_at', { ascending: false });
+  const el = document.getElementById('supplier-list');
+  if (!data || !data.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📦</div><div class="empty-title">No supplier records yet</div><div class="empty-desc">Log your supplier relationships — good and bad</div><button class="btn btn-primary" style="width:auto;padding:10px 20px;margin:0 auto" onclick="openModal('modal-add-supplier')">Log First Supplier</button></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="table-wrap"><table>
+    <thead><tr><th>Supplier</th><th>Goods / Services</th><th>Status</th><th>Delivery</th><th>Quality</th><th>Recommend?</th></tr></thead>
+    <tbody>${data.map(supplierRow).join('')}</tbody>
+  </table></div>`;
+}
+
+function supplierRow(r) {
+  const status = r.relationship_active ? `<span class="result-tag tag-green">Active</span>` : `<span class="result-tag tag-muted">Ended</span>`;
+  const rec = r.would_recommend ? `<span class="result-tag tag-green">Yes</span>` : `<span class="result-tag tag-red">No</span>`;
+  const del = r.delivery_rating ? '★'.repeat(r.delivery_rating) : '—';
+  const qual = r.quality_rating ? '★'.repeat(r.quality_rating) : '—';
+  return `<tr><td class="name">${r.supplier_name}</td><td>${r.goods_services}</td><td>${status}</td><td style="color:var(--amber)">${del}</td><td style="color:var(--amber)">${qual}</td><td>${rec}</td></tr>`;
+}
+
+async function submitSupplierRecord() {
+  const name = document.getElementById('sup-name').value.trim();
+  const goods = document.getElementById('sup-goods').value.trim();
+  const start = document.getElementById('sup-start').value;
+  const errEl = document.getElementById('sup-form-error');
+
+  if (!name || !goods || !start) {
+    errEl.textContent = 'Please fill in all required fields.'; errEl.style.display = 'block'; return;
+  }
+  errEl.style.display = 'none';
+
+  const btn = document.getElementById('sup-submit');
+  btn.disabled = true; btn.textContent = 'Saving...';
+
+  const { error } = await sb.from('supplier_records').insert({
+    logged_by: currentBusiness.id,
+    supplier_name: name,
+    supplier_kra_pin: document.getElementById('sup-kra').value.trim() || null,
+    supplier_phone: document.getElementById('sup-phone').value.trim() || null,
+    supplier_email: document.getElementById('sup-email').value.trim() || null,
+    goods_services: goods,
+    relationship_start: start,
+    relationship_end: document.getElementById('sup-end').value || null,
+    relationship_active: document.getElementById('sup-active').value === 'true',
+    payment_behavior: document.getElementById('sup-payment').value,
+    delivery_rating: ratings['sup-del'] || null,
+    quality_rating: ratings['sup-qual'] || null,
+    would_recommend: document.getElementById('sup-recommend').value === 'true',
+    total_business_volume_kshs: parseInt(document.getElementById('sup-volume').value) || null,
+    notes: document.getElementById('sup-notes').value.trim() || null
+  });
+
+  btn.disabled = false; btn.textContent = 'Save Record';
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
+  closeModal('modal-add-supplier');
+  showNotif('Supplier record saved successfully', 'success');
+  resetForm('supplier');
+  if (document.getElementById('view-suppliers').classList.contains('active')) loadSupplierList();
+  loadDashboardData();
+}
+
+// ══════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════
+async function runSearch() {
+  const query = document.getElementById('search-input').value.trim();
+  const type = document.getElementById('search-type').value;
+  if (!query) return;
+
+  const el = document.getElementById('search-results');
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:24px;color:var(--muted)"><div class="spinner"></div> Searching...</div>`;
+
+  // Log search
+  if (currentBusiness) {
+    await sb.from('search_logs').insert({ searched_by: currentBusiness.id, search_type: type, search_query: query });
+  }
+
+  if (type === 'staff') {
+    const { data } = await sb.from('staff_records').select(`*, businesses!logged_by(name,industry,location)`).or(`subject_name.ilike.%${query}%,subject_id_number.ilike.%${query}%`).limit(20);
+    renderStaffResults(data || []);
+  } else {
+    const { data } = await sb.from('supplier_records').select(`*, businesses!logged_by(name,industry,location)`).or(`supplier_name.ilike.%${query}%,supplier_kra_pin.ilike.%${query}%,goods_services.ilike.%${query}%`).limit(20);
+    renderSupplierResults(data || []);
+  }
+}
+
+function renderStaffResults(data) {
+  const el = document.getElementById('search-results');
+  if (!data.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">No results found</div><div class="empty-desc">No staff records match your search. Try a different name or ID.</div></div>`;
+    return;
+  }
+  // Group by subject ID
+  const grouped = {};
+  data.forEach(r => {
+    const key = r.subject_id_number;
+    if (!grouped[key]) grouped[key] = { name: r.subject_name, id: r.subject_id_number, records: [] };
+    grouped[key].records.push(r);
+  });
+
+  el.innerHTML = Object.values(grouped).map(g => {
+    const avgPerf = g.records.filter(r => r.performance_rating).reduce((a, b) => a + b.performance_rating, 0) / g.records.filter(r => r.performance_rating).length;
+    const avgRel = g.records.filter(r => r.reliability_rating).reduce((a, b) => a + b.reliability_rating, 0) / g.records.filter(r => r.reliability_rating).length;
+    const rehireCount = g.records.filter(r => r.rehire_recommended).length;
+    const statusTag = g.records.some(r => r.is_active) ? `<span class="result-tag tag-green">Currently employed</span>` : `<span class="result-tag tag-muted">Not currently employed</span>`;
+    const rehireTag = rehireCount === g.records.length ? `<span class="result-tag tag-green">✓ Rehire recommended</span>` : rehireCount === 0 ? `<span class="result-tag tag-red">✗ Not recommended</span>` : `<span class="result-tag tag-amber">Mixed reviews</span>`;
+
+    return `<div class="result-card">
+      <div class="result-name">${g.name}</div>
+      <div class="result-meta">ID: ${g.id} &nbsp;·&nbsp; ${g.records.length} record${g.records.length > 1 ? 's' : ''} on Veribase</div>
+      <div style="margin-bottom:10px">${statusTag} ${rehireTag}</div>
+      <div class="result-ratings">
+        ${avgPerf ? `<div class="rating-item"><strong style="color:var(--amber)">${'★'.repeat(Math.round(avgPerf))}</strong> Performance (avg ${avgPerf.toFixed(1)})</div>` : ''}
+        ${avgRel ? `<div class="rating-item"><strong style="color:var(--amber)">${'★'.repeat(Math.round(avgRel))}</strong> Reliability (avg ${avgRel.toFixed(1)})</div>` : ''}
+      </div>
+      <details style="margin-top:12px">
+        <summary style="font-size:12px;color:var(--muted);cursor:pointer">View ${g.records.length} record${g.records.length > 1 ? 's' : ''}</summary>
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+          ${g.records.map(r => `<div style="background:var(--slate);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--light)">
+            <strong style="color:var(--white)">${r.position}</strong> at ${r.businesses?.name || 'Unknown'} (${r.businesses?.industry || ''})
+            ${r.employment_start ? `· ${r.employment_start.slice(0,7)}${r.employment_end ? ' to ' + r.employment_end.slice(0,7) : ' – present'}` : ''}
+            ${r.notes ? `<div style="margin-top:4px;color:var(--muted)">"${r.notes}"</div>` : ''}
+          </div>`).join('')}
+        </div>
+      </details>
+    </div>`;
+  }).join('');
+}
+
+function renderSupplierResults(data) {
+  const el = document.getElementById('search-results');
+  if (!data.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">No results found</div><div class="empty-desc">No supplier records match your search.</div></div>`;
+    return;
+  }
+  const grouped = {};
+  data.forEach(r => {
+    const key = r.supplier_kra_pin || r.supplier_name.toLowerCase();
+    if (!grouped[key]) grouped[key] = { name: r.supplier_name, kra: r.supplier_kra_pin, records: [] };
+    grouped[key].records.push(r);
+  });
+
+  el.innerHTML = Object.values(grouped).map(g => {
+    const avgDel = g.records.filter(r => r.delivery_rating).reduce((a,b) => a + b.delivery_rating, 0) / (g.records.filter(r => r.delivery_rating).length || 1);
+    const avgQual = g.records.filter(r => r.quality_rating).reduce((a,b) => a + b.quality_rating, 0) / (g.records.filter(r => r.quality_rating).length || 1);
+    const recCount = g.records.filter(r => r.would_recommend).length;
+    const recTag = recCount === g.records.length ? `<span class="result-tag tag-green">✓ Recommended</span>` : recCount === 0 ? `<span class="result-tag tag-red">✗ Not recommended</span>` : `<span class="result-tag tag-amber">Mixed reviews</span>`;
+    const activeTag = g.records.some(r => r.relationship_active) ? `<span class="result-tag tag-green">Active supplier</span>` : `<span class="result-tag tag-muted">Inactive</span>`;
+
+    return `<div class="result-card">
+      <div class="result-name">${g.name}</div>
+      <div class="result-meta">${g.kra ? 'KRA: ' + g.kra + ' · ' : ''}${g.records.length} record${g.records.length > 1 ? 's' : ''}</div>
+      <div style="margin-bottom:10px">${activeTag} ${recTag}</div>
+      <div class="result-ratings">
+        ${avgDel ? `<div class="rating-item"><strong style="color:var(--amber)">${'★'.repeat(Math.round(avgDel))}</strong> Delivery (${avgDel.toFixed(1)})</div>` : ''}
+        ${avgQual ? `<div class="rating-item"><strong style="color:var(--amber)">${'★'.repeat(Math.round(avgQual))}</strong> Quality (${avgQual.toFixed(1)})</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// PROFILE
+// ══════════════════════════════════════════
+async function loadProfile() {
+  if (!currentBusiness) return;
+  document.getElementById('prof-avatar').textContent = currentBusiness.name.charAt(0).toUpperCase();
+  document.getElementById('prof-name').textContent = currentBusiness.name;
+  document.getElementById('prof-industry').textContent = `${currentBusiness.industry} · ${currentBusiness.location}`;
+  document.getElementById('prof-email').textContent = `Signed in as: ${currentUser?.email}`;
+
+  const [staffRes, supRes] = await Promise.all([
+    sb.from('staff_records').select('id', { count: 'exact', head: true }).eq('logged_by', currentBusiness.id),
+    sb.from('supplier_records').select('id', { count: 'exact', head: true }).eq('logged_by', currentBusiness.id)
+  ]);
+  document.getElementById('prof-staff-count').textContent = staffRes.count || 0;
+  document.getElementById('prof-supplier-count').textContent = supRes.count || 0;
+
+  const details = document.getElementById('prof-details');
+  const fields = [
+    ['Business Name', currentBusiness.name],
+    ['Industry', currentBusiness.industry],
+    ['Location', currentBusiness.location],
+    ['KRA PIN', currentBusiness.kra_pin || 'Not provided'],
+    ['Phone', currentBusiness.phone || 'Not provided'],
+    ['Member Since', new Date(currentBusiness.created_at).toLocaleDateString('en-KE', {month:'long',year:'numeric'})],
+  ];
+  details.innerHTML = fields.map(([k, v]) => `<div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.5px;margin-bottom:4px">${k.toUpperCase()}</div><div style="font-size:14px;color:var(--white)">${v}</div></div>`).join('');
+
+  // Pre-fill edit form
+  document.getElementById('ep-name').value = currentBusiness.name;
+  document.getElementById('ep-kra').value = currentBusiness.kra_pin || '';
+  document.getElementById('ep-phone').value = currentBusiness.phone || '';
+  document.getElementById('ep-desc').value = currentBusiness.description || '';
+  setSelectValue('ep-industry', currentBusiness.industry);
+  setSelectValue('ep-location', currentBusiness.location);
+}
+
+async function saveProfile() {
+  const { error } = await sb.from('businesses').update({
+    name: document.getElementById('ep-name').value.trim(),
+    industry: document.getElementById('ep-industry').value,
+    location: document.getElementById('ep-location').value,
+    kra_pin: document.getElementById('ep-kra').value.trim() || null,
+    phone: document.getElementById('ep-phone').value.trim() || null,
+    description: document.getElementById('ep-desc').value.trim() || null,
+    updated_at: new Date().toISOString()
+  }).eq('id', currentBusiness.id);
+
+  if (error) { showNotif('Failed to save: ' + error.message, 'error'); return; }
+  const { data } = await sb.from('businesses').select('*').eq('id', currentBusiness.id).single();
+  currentBusiness = data;
+  closeModal('modal-edit-profile');
+  showNotif('Profile updated', 'success');
+  loadProfile();
+  updateSidebar();
+}
+
+// ══════════════════════════════════════════
+// PAYMENTS (M-Pesa via your Daraja API)
+// ══════════════════════════════════════════
+function initPayment(plan, amount) {
+  paymentPlan = plan; paymentAmount = amount;
+  document.getElementById('payment-desc').textContent = `${plan.charAt(0).toUpperCase() + plan.slice(1)} plan — 1 month`;
+  document.getElementById('pay-amount').textContent = `KSh ${amount.toLocaleString()}`;
+  document.getElementById('pay-error').style.display = 'none';
+  document.getElementById('pay-success').style.display = 'none';
+  document.getElementById('pay-phone').value = currentBusiness?.phone || '';
+  openModal('modal-payment');
+}
+
+async function processPayment() {
+  const phone = document.getElementById('pay-phone').value.trim().replace(/^0/, '254').replace(/^\+/, '');
+  if (!phone || phone.length < 10) {
+    document.getElementById('pay-error').textContent = 'Please enter a valid M-Pesa phone number.';
+    document.getElementById('pay-error').style.display = 'block'; return;
+  }
+
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true; btn.textContent = 'Processing...';
+
+  // Call your M-Pesa Daraja API
+  try {
+    const res = await fetch('/api/mpesa-stk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, amount: paymentAmount, plan: paymentPlan, businessId: currentBusiness.id })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('pay-success').style.display = 'block';
+      // Record pending subscription
+      await sb.from('subscriptions').insert({
+        business_id: currentBusiness.id, plan: paymentPlan,
+        amount_kshs: paymentAmount, mpesa_phone: phone,
+        period_start: new Date().toISOString(),
+        period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        status: 'pending', mpesa_transaction_id: data.checkoutRequestId
+      });
+    } else {
+      document.getElementById('pay-error').textContent = data.message || 'Payment initiation failed. Try again.';
+      document.getElementById('pay-error').style.display = 'block';
+    }
+  } catch (e) {
+    // If API not connected yet, show instructions
+    document.getElementById('pay-error').textContent = 'Payment API not configured yet. See README for M-Pesa setup.';
+    document.getElementById('pay-error').style.display = 'block';
+  }
+
+  btn.disabled = false; btn.textContent = 'Pay Now';
+}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function setRating(prefix, val) {
+  ratings[prefix] = val;
+  const stars = document.getElementById(prefix + '-stars');
+  stars.querySelectorAll('.star-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.v) <= val);
+  });
+}
+
+function setSelectValue(id, val) {
+  const sel = document.getElementById(id);
+  for (let i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === val || sel.options[i].text === val) { sel.selectedIndex = i; break; }
+  }
+}
+
+function resetForm(type) {
+  if (type === 'staff') {
+    ['sf-name','sf-id','sf-position','sf-phone','sf-start','sf-end','sf-notes'].forEach(id => { document.getElementById(id).value = ''; });
+    ratings['sf-perf'] = 0; ratings['sf-rel'] = 0;
+    document.querySelectorAll('#modal-add-staff .star-btn').forEach(b => b.classList.remove('active'));
+  } else {
+    ['sup-name','sup-kra','sup-phone','sup-email','sup-goods','sup-start','sup-end','sup-volume','sup-notes'].forEach(id => { document.getElementById(id).value = ''; });
+    ratings['sup-del'] = 0; ratings['sup-qual'] = 0;
+    document.querySelectorAll('#modal-add-supplier .star-btn').forEach(b => b.classList.remove('active'));
+  }
+}
+
+function showNotif(msg, type) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.className = `notif open notif-${type}`;
+  setTimeout(() => el.classList.remove('open'), 3500);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+
+// Toggle exit reason visibility
+document.getElementById('sf-active')?.addEventListener('change', function() {
+  document.getElementById('sf-exit-section').style.display = this.value === 'true' ? 'none' : 'block';
+});
+
+// ══════════════════════════════════════════
+// START
+// ══════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
